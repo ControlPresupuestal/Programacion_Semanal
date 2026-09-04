@@ -1,191 +1,137 @@
-<!doctype html>
-<html lang="es">
-<head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Programación Semanal | ASA | IA</title>
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ASA | IA - Programación</title>
 <style>
-:root{--blue:#174a8b;--blue2:#0f376d;--soft:#eaf2fb;--green:#2d9b4e;--ink:#18324f;--muted:#6b7f95;--line:#d8e2ec;--bg:#f6f9fc}
-*{box-sizing:border-box}body{margin:0;font-family:Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--ink)}
-.page{max-width:1240px;margin:auto;padding:20px 14px}.hero,.panel,.box{background:#fff;border:1px solid var(--line);border-radius:16px}
-.hero{padding:18px 20px;display:flex;justify-content:space-between;gap:14px;align-items:center;flex-wrap:wrap;border-left:7px solid var(--green)}
-.brand{display:flex;gap:12px;align-items:center}.logo{min-width:86px;height:48px;padding:0 12px;border-radius:13px;background:var(--blue);color:white;display:grid;place-items:center;font-weight:900;font-size:17px}
-.brand small{display:block;color:var(--green);font-weight:800;font-size:11px;text-transform:uppercase}.brand h1{margin:2px 0 0;color:var(--blue2);font-size:22px}
-.conn{font-size:12px;font-weight:800;padding:7px 10px;border-radius:999px;background:#eef2f6;color:var(--muted)}.conn.ok{background:#edf8f0;color:#18733b}.conn.bad{background:#fff0ee;color:#b42318}
-.tabs{display:flex;gap:8px;margin:14px 0}.tab{border:1px solid var(--line);background:#fff;color:var(--blue2);padding:10px 14px;border-radius:10px;font-weight:800;cursor:pointer}.tab.active{background:var(--blue);color:#fff}
-.view{display:none}.view.active{display:block}.panel{padding:16px}.title{font-size:16px;font-weight:900;color:var(--blue2);margin:0 0 12px}
-.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}label{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase}
-select,input{width:100%;margin-top:5px;border:1px solid var(--line);border-radius:9px;padding:10px;font-size:14px;background:#fff}
-.combo{position:relative}.combo-input{padding-right:38px}.combo-btn{position:absolute;right:7px;top:29px;border:0;background:transparent;color:var(--blue2);font-size:17px;cursor:pointer;padding:4px}
-.combo-list{position:absolute;z-index:30;left:0;right:0;top:100%;margin-top:4px;background:#fff;border:1px solid var(--line);border-radius:10px;max-height:260px;overflow:auto;box-shadow:0 10px 28px rgba(15,55,109,.14);display:none}
-.combo-list.open{display:block}.combo-item{padding:9px 10px;cursor:pointer;font-size:13px;border-bottom:1px solid #eef2f6}.combo-item:last-child{border-bottom:0}.combo-item:hover{background:var(--soft);color:var(--blue2)}
-button{border:0;border-radius:9px;padding:10px 14px;font-weight:800;cursor:pointer}.primary{background:var(--green);color:#fff}.blue{background:var(--blue);color:#fff}.light{background:#edf2f7;color:var(--ink)}
-.weekbar{margin:12px 0;background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 14px;display:flex;align-items:end;gap:10px;flex-wrap:wrap}
-.weekbar label{min-width:120px}.weekbar .range{margin-left:auto;font-size:14px;font-weight:800;color:var(--blue2);padding:10px 0}
-.week{margin-top:12px}.weekhead{padding:13px 15px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}
-.scroll{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:930px;font-size:13px}thead th{background:var(--blue);color:#fff;padding:10px 8px;text-align:left;font-size:11px;text-transform:uppercase}thead th.num,.num{text-align:center}
-tbody td{padding:8px;border-bottom:1px solid #edf2f7}.fundo{background:var(--soft);font-weight:900;color:var(--blue2);border-left:4px solid var(--blue)}.jefe{font-weight:800;color:var(--green)}
-.sub td{background:#f2f6fb;font-weight:900;color:var(--blue2)}.total td{background:var(--blue2);color:#fff;font-weight:900}.total td:last-child{background:var(--green)}
-.actions{display:flex;gap:9px;justify-content:flex-end;padding:12px}.status,.hint{font-size:12px;color:var(--muted)}.empty{padding:26px;text-align:center;color:var(--muted)}
-.meta{display:grid;grid-template-columns:repeat(4,minmax(110px,1fr));gap:9px;margin:10px 0}.card{background:#fff;border:1px solid var(--line);border-radius:11px;padding:10px 12px}.card span{font-size:10px;color:var(--muted);font-weight:800;text-transform:uppercase}.card strong{display:block;margin-top:4px;font-size:16px}
-@media(max-width:760px){.grid{grid-template-columns:1fr}.meta{grid-template-columns:1fr 1fr}.weekbar .range{width:100%;margin-left:0}}
-</style>
-</head>
-<body>
-<main class="page">
-<section class="hero">
- <div class="brand"><div class="logo">ASA | IA</div><div><small>Agrícola Santa Azul · Interandina</small><h1>Programación Semanal</h1></div></div>
- <div id="conn" class="conn">Conectando…</div>
-</section>
-
-<div class="weekbar">
-  <label>Año<select id="yearSelect"></select></label>
-  <button id="prevWeek" class="light" title="Semana anterior">←</button>
-  <label>Semana<select id="weekSelect"></select></label>
-  <button id="nextWeek" class="light" title="Semana siguiente">→</button>
-  <div id="globalRange" class="range">—</div>
-</div>
-
-<nav class="tabs">
- <button class="tab active" data-v="reg">Registrar programación</button>
- <button class="tab" data-v="res">Resumen semanal</button>
-</nav>
-
-<section id="reg" class="view active">
- <div class="panel">
-  <h2 class="title">Selecciona responsable y labor</h2>
-  <div class="grid">
-   <label>Jefatura
-    <div class="combo"><input id="jefatura" class="combo-input" type="text" autocomplete="off" placeholder="Buscar o desplegar..."><button class="combo-btn" data-target="jefatura">⌄</button><div id="jefaturaList" class="combo-list"></div></div>
-   </label>
-   <label>Fundo<select id="fundo"></select></label>
-   <label>Área<select id="area"></select></label>
-   <label>Grupo labor
-    <div class="combo"><input id="grupo" class="combo-input" type="text" autocomplete="off" placeholder="Buscar o desplegar..."><button class="combo-btn" data-target="grupo">⌄</button><div id="grupoList" class="combo-list"></div></div>
-   </label>
-   <label>Labor
-    <div class="combo"><input id="labor" class="combo-input" type="text" autocomplete="off" placeholder="Buscar o desplegar labor..."><button class="combo-btn" data-target="labor">⌄</button><div id="laborList" class="combo-list"></div></div>
-   </label>
-   <label>Turno<select id="turno"><option>DIA</option><option>NOCHE</option></select></label>
-  </div>
-  <div class="hint" style="margin-top:9px">Solo se muestran labores con ESTADO = ACTIVO.</div>
- </div>
-
- <div class="box week">
-  <div class="weekhead"><div><strong id="weekTitle">Programar semana</strong><div id="weekRange" class="hint">—</div></div><button id="build" class="blue">Preparar semana</button></div>
-  <div class="scroll"><table><thead id="entryHead"></thead><tbody id="entryBody"></tbody></table></div>
-  <div id="entryEmpty" class="empty">Selecciona Jefatura, Fundo, Área y Labor.</div>
-  <div class="actions"><button id="save" class="primary">Guardar programación</button></div>
- </div>
- <div id="saveStatus" class="status"></div>
-</section>
-
-<section id="res" class="view">
- <div class="meta">
-  <div class="card"><span>Semana</span><strong id="sWeek">—</strong></div>
-  <div class="card"><span>Labores</span><strong id="sLab">—</strong></div>
-  <div class="card"><span>Personas-día</span><strong id="sPeople">—</strong></div>
-  <div class="card"><span>Registros</span><strong id="sRows">—</strong></div>
- </div>
- <div class="panel" style="margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
-   <span id="sumRange" class="hint"></span>
-   <button id="loadSummary" class="blue">Actualizar resumen</button>
- </div>
- <div class="box">
-  <div class="scroll"><table><thead id="sumHead"></thead><tbody id="sumBody"></tbody></table></div>
-  <div id="sumEmpty" class="empty">Pulsa “Actualizar resumen”.</div>
- </div>
- <div id="sumStatus" class="status"></div>
-</section>
-</main>
-
+:root{--b:#174a8b;--bd:#0f376d;--g:#2d9b4e;--bg:#f5f8fc;--ln:#d8e2ec;--tx:#18324f;--mu:#6b7f95;--sf:#eaf2fb}*{box-sizing:border-box}body{margin:0;background:var(--bg);font:14px Segoe UI,Arial;color:var(--tx)}.app{max-width:1450px;margin:auto;padding:16px}.card{background:#fff;border:1px solid var(--ln);border-radius:15px}.top{padding:15px 18px;border-left:7px solid var(--g);display:flex;justify-content:space-between;align-items:center}.brand{display:flex;gap:12px;align-items:center}.logo{background:var(--b);color:#fff;border-radius:12px;padding:14px;font-weight:900}.brand small{color:var(--g);font-weight:800}.brand h1{margin:2px 0;color:var(--bd);font-size:21px}.conn{font-size:12px;color:var(--mu);font-weight:800}.weekbar{margin:10px 0;padding:10px 13px;display:flex;gap:8px;align-items:end;flex-wrap:wrap}.weekbar label,.field{font-size:10px;text-transform:uppercase;font-weight:800;color:var(--mu)}select,input{border:1px solid var(--ln);border-radius:8px;padding:9px;background:#fff}.range{margin-left:auto;padding:9px;font-weight:900;color:var(--bd)}button{border:0;border-radius:8px;padding:9px 12px;font-weight:800;cursor:pointer}.blue{background:var(--b);color:#fff}.green{background:var(--g);color:#fff}.light{background:#edf2f7;color:var(--tx)}.red{background:#fff0ee;color:#b42318}.layout{display:grid;grid-template-columns:270px 1fr;gap:10px}.side{padding:14px}.field{display:block;margin:11px 0}.field select,.field input{width:100%;display:block;margin-top:5px}.add{width:100%}.main{overflow:hidden}.toolbar{padding:10px 12px;border-bottom:1px solid var(--ln);display:flex;justify-content:flex-end;gap:6px}.content{padding:12px}.area{border:1px solid var(--ln);border-radius:12px;overflow:hidden;margin-bottom:12px}.atitle{background:var(--sf);padding:10px 12px;font-weight:900;color:var(--bd);display:flex;justify-content:space-between;align-items:center}.scroll{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:1080px;font-size:12px}th{background:var(--b);color:#fff;padding:8px 6px;text-align:left;font-size:10px}td{padding:6px;border-bottom:1px solid #edf2f7}.num{text-align:center}.qty{width:55px;text-align:center;padding:7px}.sel{width:100%;min-width:145px;padding:7px}.lab{min-width:235px}.subtotal td{background:#f2f6fb;font-weight:900}.grand td{background:var(--bd);color:#fff;font-weight:900}.grand td:last-child{background:var(--g)}.empty{padding:35px;text-align:center;color:var(--mu)}.status{font-size:12px;color:var(--mu);padding:4px 12px 10px}.combo{position:relative}.list{display:none;position:absolute;z-index:20;background:#fff;border:1px solid var(--ln);left:0;right:0;max-height:230px;overflow:auto;box-shadow:0 8px 20px #0002}.list.open{display:block}.item{padding:8px;cursor:pointer}.item:hover{background:var(--sf)}@media(max-width:850px){.layout{grid-template-columns:1fr}.range{width:100%;margin-left:0}}
+</style></head><body><div class="app">
+<header class="top card"><div class="brand"><div class="logo">ASA | IA</div><div><small>AGRÍCOLA SANTA AZUL · INTERANDINA</small><h1>Programación de Personal</h1></div></div><div id="conn" class="conn">Conectando…</div></header>
+<div class="weekbar card"><label>Año<br><select id="yr"></select></label><button id="prev" class="light">←</button><label>Semana<br><select id="wk"></select></label><button id="next" class="light">→</button><div id="range" class="range"></div></div>
+<div class="layout"><aside class="side card"><h3>Programar</h3><label class="field">Jefatura<div class="combo"><input id="jefe" placeholder="Buscar o seleccionar…"><div id="jl" class="list"></div></div></label><label class="field">Fundo<select id="fundo"></select></label><label class="field">Área<select id="area"></select></label><button id="addArea" class="green add">＋ Agregar área</button><hr style="border:0;border-top:1px solid var(--ln);margin:16px 0"><small style="color:var(--mu)">Puedes agregar varias áreas y varias labores en cada una.</small></aside>
+<section class="main card"><div class="toolbar"><button id="undo" class="light" title="Deshacer">↶</button><button id="redo" class="light" title="Rehacer">↷</button><button id="reset" class="light" title="Reiniciar">↻</button><button id="folder" class="light" title="Cargar programación desde CSV">📁</button><input id="csvLoad" type="file" accept=".csv,text/csv" style="display:none"><button id="save" class="green" title="Guardar">💾</button><button id="excel" class="light" title="Exportar Excel/CSV">XLS</button><button id="clear" class="red" title="Eliminar todo">🗑</button></div><div id="content" class="content"></div><div id="status" class="status"></div></section></div></div>
 <script>
-(()=>{
 const API='https://script.google.com/macros/s/AKfycbzho2PoUsUSvgxDGT8ZArzIl7gX6xXLFKBdqPwfL8snBXkLvygb2xlI-YsFOrdQ1SUP/exec';
-let responsables=[],maestro=[],programacion=[],weekDates=[];
-const $=id=>document.getElementById(id), DAYS=['DOM','LUN','MAR','MIE','JUE','VIE','SAB'];
+let R=[],M=[],A=[],hist=[],fut=[],D=[];const $=x=>document.getElementById(x),N=s=>String(s??'').trim().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''),U=a=>[...new Set(a.map(x=>String(x??'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'es')),E=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function P(o,n){for(let z of n){let k=Object.keys(o||{}).find(x=>N(x)===N(z));if(k)return o[k]}return''}const mf=r=>P(r,['FUNDO']),ma=r=>P(r,['AREA','ÁREA']),mg=r=>P(r,['GRUPO LABOR','GRUPO_LABOR']),ml=r=>P(r,['LABOR']),mcg=r=>P(r,['COD G LABOR','COD_GRUPO_LABOR']),mcl=r=>P(r,['COD LABOR','COD_LABOR']),me=r=>P(r,['ESTADO']);
+async function G(a){let r=await fetch(API+'?accion='+a+'&_='+Date.now()),j=await r.json();if(!j.ok)throw Error(j.mensaje);return j.datos||[]}function IW(d){let x=new Date(d),q=x.getUTCDay()||7;x.setUTCDate(x.getUTCDate()+4-q);let y=new Date(Date.UTC(x.getUTCFullYear(),0,1));return Math.ceil((((x-y)/86400000)+1)/7)}function WIY(y){return IW(new Date(Date.UTC(y,11,28)))}function WD(y,w){let j=new Date(Date.UTC(y,0,4)),q=j.getUTCDay()||7,m=new Date(j);m.setUTCDate(j.getUTCDate()-q+1+(w-1)*7);return Array.from({length:7},(_,i)=>{let x=new Date(m);x.setUTCDate(m.getUTCDate()+i);return x})}const ISO=d=>d.toISOString().slice(0,10),SH=d=>new Intl.DateTimeFormat('es-PE',{day:'2-digit',month:'short'}).format(d).replace('.','');
+function weeks(s){let y=+$('yr').value;$('wk').innerHTML=Array.from({length:WIY(y)},(_,i)=>'<option>'+(i+1)+'</option>').join('');$('wk').value=Math.min(s,WIY(y));setWeek()}function setWeek(){D=WD(+$('yr').value,+$('wk').value);$('range').textContent=SH(D[0])+' – '+SH(D[6])+' '+D[6].getUTCFullYear();render()}function initWeek(){let n=new Date(),d=new Date(Date.UTC(n.getFullYear(),n.getMonth(),n.getDate())),x=new Date(d),q=x.getUTCDay()||7;x.setUTCDate(x.getUTCDate()+4-q);let y=x.getUTCFullYear();$('yr').innerHTML=[y-1,y,y+1].map(v=>'<option>'+v+'</option>').join('');$('yr').value=y;weeks(IW(d))}function shift(n){let y=+$('yr').value,w=+$('wk').value+n;if(w<1){y--;w=WIY(y)}if(w>WIY(y)){y++;w=1}if(![...$('yr').options].some(o=>+o.value===y))$('yr').add(new Option(y,y));$('yr').value=y;weeks(w)}
+$('yr').onchange=()=>weeks(1);$('wk').onchange=setWeek;$('prev').onclick=()=>shift(-1);$('next').onclick=()=>shift(1);
+function fill(e,v,p){e.innerHTML='<option value="">'+p+'</option>'+v.map(x=>'<option>'+E(x)+'</option>').join('')}function rf(){let j=$('jefe').value;fill($('fundo'),U(R.filter(r=>!j||N(P(r,['JEFATURA']))===N(j)).map(r=>P(r,['FUNDO']))),'Selecciona fundo');ra()}function ra(){let j=$('jefe').value,f=$('fundo').value;fill($('area'),U(R.filter(r=>(!j||N(P(r,['JEFATURA']))===N(j))&&(!f||N(P(r,['FUNDO']))===N(f))).map(r=>P(r,['AREA','ÁREA']))),'Selecciona área')}$('fundo').onchange=ra;
+function jc(){let i=$('jefe'),l=$('jl');function dr(all){let q=all?'':N(i.value),v=U(R.map(r=>P(r,['JEFATURA']))).filter(x=>!q||N(x).includes(q));l.innerHTML=v.map(x=>'<div class="item" data-v="'+E(x)+'">'+E(x)+'</div>').join('');l.classList.add('open');l.querySelectorAll('[data-v]').forEach(x=>x.onmousedown=e=>{e.preventDefault();i.value=x.dataset.v;l.classList.remove('open');rf()})}i.onfocus=()=>dr(true);i.oninput=()=>dr(false);document.addEventListener('click',e=>{if(!i.parentElement.contains(e.target))l.classList.remove('open')})}
+function rows(f,a){return M.filter(r=>N(me(r))==='ACTIVO').filter(r=>!f||N(mf(r))===N(f)).filter(r=>!a||!ma(r)||N(ma(r))===N(a))}function snap(){hist.push(JSON.stringify(A));if(hist.length>30)hist.shift();fut=[]}
+$('addArea').onclick=()=>{let j=$('jefe').value.trim(),f=$('fundo').value,a=$('area').value;if(!j||!f||!a)return alert('Selecciona Jefatura, Fundo y Área.');snap();A.push({id:Date.now(),j,f,a,r:[]});render()};
+window.addR=id=>{snap();A.find(x=>x.id===id).r.push({id:Date.now(),g:'',l:'',t:'DIA',q:[0,0,0,0,0,0,0]});render()};window.delR=(a,r)=>{snap();let x=A.find(z=>z.id===a);x.r=x.r.filter(z=>z.id!==r);render()};window.delA=id=>{snap();A=A.filter(x=>x.id!==id);render()};window.cp=(a,r)=>{let x=A.find(z=>z.id===a).r.find(z=>z.id===r);navigator.clipboard?.writeText([x.g,x.l,x.t,...x.q].join('\t'));$('status').textContent='Línea copiada.'};window.sr=(a,r,k,v)=>{let x=A.find(z=>z.id===a).r.find(z=>z.id===r);x[k]=v;if(k==='g')x.l='';render()};window.sq=(a,r,i,v)=>{A.find(z=>z.id===a).r.find(z=>z.id===r).q[i]=Math.max(0,+v||0);tot()};
+function render(){let c=$('content'),days=['LUN','MAR','MIÉ','JUE','VIE','SÁB','DOM'];if(!A.length){c.innerHTML='<div class="empty">Agrega un área para comenzar la programación.</div>';return}c.innerHTML=A.map(a=>{let mr=rows(a.f,a.a),gs=U(mr.map(mg));return '<div class="area"><div class="atitle"><span>'+E(a.f)+' · '+E(a.a)+' — '+E(a.j)+'</span><span><button class="blue" onclick="addR('+a.id+')">＋ Labor</button> <button class="red" onclick="delA('+a.id+')">×</button></span></div><div class="scroll"><table><thead><tr><th>Grupo labor</th><th>Labor</th><th>Turno</th>'+days.map((d,i)=>'<th class="num">'+D[i].getUTCDate()+'<small style="display:block">'+d+'</small></th>').join('')+'<th class="num">Total</th><th>Acciones</th></tr></thead><tbody>'+a.r.map(r=>{let ls=U(mr.filter(x=>!r.g||N(mg(x))===N(r.g)).map(ml));return '<tr><td><select class="sel" onchange="sr('+a.id+','+r.id+',\'g\',this.value)"><option></option>'+gs.map(x=>'<option '+(x===r.g?'selected':'')+'>'+E(x)+'</option>').join('')+'</select></td><td><select class="sel lab" onchange="sr('+a.id+','+r.id+',\'l\',this.value)"><option></option>'+ls.map(x=>'<option '+(x===r.l?'selected':'')+'>'+E(x)+'</option>').join('')+'</select></td><td><select onchange="sr('+a.id+','+r.id+',\'t\',this.value)"><option '+(r.t==='DIA'?'selected':'')+'>DIA</option><option '+(r.t==='NOCHE'?'selected':'')+'>NOCHE</option></select></td>'+r.q.map((q,i)=>'<td class="num"><input class="qty" type="number" min="0" value="'+q+'" onchange="sq('+a.id+','+r.id+','+i+',this.value)"></td>').join('')+'<td class="num rt" data-a="'+a.id+'" data-r="'+r.id+'"></td><td><button class="light" title="Copiar línea" onclick="cp('+a.id+','+r.id+')">📋</button> <button class="red" title="Borrar línea" onclick="delR('+a.id+','+r.id+')">🗑</button></td></tr>'}).join('')+'<tr class="subtotal"><td colspan="3">Subtotal área</td>'+[0,1,2,3,4,5,6].map(i=>'<td class="num as" data-a="'+a.id+'" data-i="'+i+'"></td>').join('')+'<td class="num at" data-a="'+a.id+'"></td><td></td></tr></tbody></table></div></div>'}).join('')+'<div class="scroll"><table><tbody><tr class="grand"><td colspan="3">TOTAL GENERAL</td>'+[0,1,2,3,4,5,6].map(i=>'<td class="num gd" data-i="'+i+'"></td>').join('')+'<td class="num" id="gt"></td><td></td></tr></tbody></table></div>';tot()}
+function tot(){let gd=[0,0,0,0,0,0,0],gt=0;A.forEach(a=>{let s=[0,0,0,0,0,0,0],at=0;a.r.forEach(r=>{let t=r.q.reduce((z,x)=>z+(+x||0),0),e=document.querySelector('.rt[data-a="'+a.id+'"][data-r="'+r.id+'"]');if(e)e.textContent=t;r.q.forEach((x,i)=>s[i]+=+x||0);at+=t});s.forEach((x,i)=>{let e=document.querySelector('.as[data-a="'+a.id+'"][data-i="'+i+'"]');if(e)e.textContent=x;gd[i]+=x});let e=document.querySelector('.at[data-a="'+a.id+'"]');if(e)e.textContent=at;gt+=at});gd.forEach((x,i)=>{let e=document.querySelector('.gd[data-i="'+i+'"]');if(e)e.textContent=x});if($('gt'))$('gt').textContent=gt}
+$('undo').onclick=()=>{if(hist.length){fut.push(JSON.stringify(A));A=JSON.parse(hist.pop());render()}};$('redo').onclick=()=>{if(fut.length){hist.push(JSON.stringify(A));A=JSON.parse(fut.pop());render()}};$('reset').onclick=$('clear').onclick=()=>{if(confirm('¿Limpiar la programación de la pantalla?')){snap();A=[];render()}};
+$('folder').onclick=()=>{ $('csvLoad').value=''; $('csvLoad').click(); };
 
-document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{
- document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
- document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
- b.classList.add('active');$(b.dataset.v).classList.add('active');
-}));
-
-const norm=s=>String(s??'').trim().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
-const uniq=a=>[...new Set(a.map(x=>String(x??'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'es'));
-const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-function pick(o,names){for(const n of names){const k=Object.keys(o||{}).find(x=>norm(x)===norm(n));if(k)return o[k]}return ''}
-function fill(el,vals,label){const old=el.value;el.innerHTML=`<option value="">${label}</option>`+vals.map(v=>`<option>${esc(v)}</option>`).join('');if(vals.includes(old))el.value=old}
-const iso=d=>d.toISOString().slice(0,10);
-function fmtShort(d){return new Intl.DateTimeFormat('es-PE',{day:'2-digit',month:'short'}).format(d).replace('.','')}
-function fmt(n){return Number(n||0).toLocaleString('es-PE',{maximumFractionDigits:2})}
-function isoWeeksInYear(y){const d=new Date(Date.UTC(y,11,28));return isoWeek(d)}
-function isoWeek(d){const x=new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate()));const day=x.getUTCDay()||7;x.setUTCDate(x.getUTCDate()+4-day);const y=new Date(Date.UTC(x.getUTCFullYear(),0,1));return Math.ceil((((x-y)/86400000)+1)/7)}
-function weekDatesFrom(y,w){const jan4=new Date(Date.UTC(y,0,4));const day=jan4.getUTCDay()||7;const monday=new Date(jan4);monday.setUTCDate(jan4.getUTCDate()-day+1+(w-1)*7);return Array.from({length:7},(_,i)=>{const x=new Date(monday);x.setUTCDate(monday.getUTCDate()+i);return x})}
-function currentIsoYearWeek(){const now=new Date(),d=new Date(Date.UTC(now.getFullYear(),now.getMonth(),now.getDate()));const x=new Date(d),day=x.getUTCDay()||7;x.setUTCDate(x.getUTCDate()+4-day);return {year:x.getUTCFullYear(),week:isoWeek(d)}}
-function populateYears(){const c=currentIsoYearWeek();const years=[c.year-1,c.year,c.year+1,c.year+2];$('yearSelect').innerHTML=years.map(y=>`<option>${y}</option>`).join('');$('yearSelect').value=c.year;populateWeeks(c.week)}
-function populateWeeks(selectWeek){const y=+$('yearSelect').value,max=isoWeeksInYear(y);$('weekSelect').innerHTML=Array.from({length:max},(_,i)=>`<option value="${i+1}">${i+1}</option>`).join('');$('weekSelect').value=Math.min(selectWeek||1,max);updateWeekContext()}
-function updateWeekContext(){const y=+$('yearSelect').value,w=+$('weekSelect').value;weekDates=weekDatesFrom(y,w);$('globalRange').textContent=`${fmtShort(weekDates[0])} – ${fmtShort(weekDates[6])} ${weekDates[6].getUTCFullYear()}`;$('weekTitle').textContent=`Semana ${w}`;$('weekRange').textContent=$('globalRange').textContent;$('sWeek').textContent=w;$('sumRange').textContent=$('globalRange').textContent;$('entryHead').innerHTML='';$('entryBody').innerHTML='';$('entryEmpty').hidden=false}
-$('yearSelect').addEventListener('change',()=>populateWeeks(1));$('weekSelect').addEventListener('change',updateWeekContext);
-$('prevWeek').addEventListener('click',()=>shiftWeek(-1));$('nextWeek').addEventListener('click',()=>shiftWeek(1));
-function shiftWeek(delta){let y=+$('yearSelect').value,w=+$('weekSelect').value+delta;if(w<1){y--;w=isoWeeksInYear(y)}else if(w>isoWeeksInYear(y)){y++;w=1}if(![...$('yearSelect').options].some(o=>+o.value===y)){$('yearSelect').add(new Option(y,y),delta<0?0:undefined)}$('yearSelect').value=y;populateWeeks(w)}
-
-function makeSearchCombo(inputId,listId,getValues,onSelect){
- const input=$(inputId),list=$(listId);
- function render(showAll=false){const q=showAll?'':norm(input.value);const vals=getValues().filter(v=>!q||norm(v).includes(q)).slice(0,180);list.innerHTML=vals.length?vals.map(v=>`<div class="combo-item" data-v="${esc(v)}">${esc(v)}</div>`).join(''):`<div class="combo-item" style="color:var(--muted)">Sin coincidencias</div>`;list.classList.add('open');list.querySelectorAll('[data-v]').forEach(x=>x.addEventListener('mousedown',e=>{e.preventDefault();input.value=x.dataset.v;list.classList.remove('open');onSelect?.(x.dataset.v)}))}
- input.addEventListener('focus',()=>render(false));input.addEventListener('input',()=>render(false));
- document.querySelector(`[data-target="${inputId}"]`).addEventListener('click',e=>{e.preventDefault();render(true)});
- document.addEventListener('click',e=>{if(!input.parentElement.contains(e.target))list.classList.remove('open')});
+function detectDelimiter(t){
+  const first=(t.split(/\r?\n/).find(x=>x.trim())||'');
+  const opts=[[';',(first.match(/;/g)||[]).length],[',',(first.match(/,/g)||[]).length],['\t',(first.match(/\t/g)||[]).length]];
+  return opts.sort((a,b)=>b[1]-a[1])[0][0];
+}
+function parseCSV(t){
+  const d=detectDelimiter(t),rows=[];let row=[],field='',q=false;
+  for(let i=0;i<t.length;i++){
+    const c=t[i],n=t[i+1];
+    if(c==='"'){
+      if(q&&n==='"'){field+='"';i++;} else q=!q;
+    }else if(c===d&&!q){row.push(field);field='';}
+    else if((c==='\n'||c==='\r')&&!q){
+      if(c==='\r'&&n==='\n')i++;
+      row.push(field);field='';
+      if(row.some(v=>String(v).trim()!==''))rows.push(row);
+      row=[];
+    }else field+=c;
+  }
+  row.push(field);
+  if(row.some(v=>String(v).trim()!==''))rows.push(row);
+  if(!rows.length)return [];
+  const h=rows[0].map(x=>String(x).replace(/^\uFEFF/,'').trim());
+  return rows.slice(1).map(r=>{const o={};h.forEach((k,i)=>o[k]=r[i]??'');return o;});
+}
+function csvVal(o,names){
+  for(const n of names){
+    const k=Object.keys(o).find(x=>N(x)===N(n));
+    if(k)return o[k];
+  }
+  return '';
+}
+function validResponsible(j,f,a){
+  return R.some(r=>N(P(r,['JEFATURA']))===N(j)&&N(P(r,['FUNDO']))===N(f)&&N(P(r,['AREA','ÁREA']))===N(a));
+}
+function activeLaborExists(f,a,g,l){
+  return rows(f,a).some(x=>(!g||N(mg(x))===N(g))&&N(ml(x))===N(l));
 }
 
-async function get(action){const r=await fetch(`${API}?accion=${encodeURIComponent(action)}&_=${Date.now()}`);const j=await r.json();if(!j.ok)throw new Error(j.mensaje||'Error');return j.datos||[]}
-function mFundo(r){return pick(r,['FUNDO','Fundo'])}
-function mArea(r){return pick(r,['AREA','ÁREA','Area','Área','AREA_LABOR'])}
-function mGrupo(r){return pick(r,['GRUPO LABOR','Grupo Labor','GRUPO_LABOR'])}
-function mCodGrupo(r){return pick(r,['Cod G Labor','COD G LABOR','COD_GRUPO_LABOR'])}
-function mLabor(r){return pick(r,['LABOR','Labor'])}
-function mCodLabor(r){return pick(r,['Cod Labor','COD LABOR','COD_LABOR'])}
-function mEstado(r){return pick(r,['ESTADO','Estado'])}
+$('csvLoad').onchange=async e=>{
+  const file=e.target.files[0]; if(!file)return;
+  try{
+    const parsed=parseCSV(await file.text());
+    if(!parsed.length) return alert('El CSV está vacío.');
 
-function refreshF(){const j=$('jefatura').value.trim();fill($('fundo'),uniq(responsables.filter(r=>!j||norm(pick(r,['JEFATURA']))===norm(j)).map(r=>pick(r,['FUNDO']))),'Selecciona fundo');refreshA()}
-function refreshA(){const j=$('jefatura').value.trim(),f=$('fundo').value;fill($('area'),uniq(responsables.filter(r=>(!j||norm(pick(r,['JEFATURA']))===norm(j))&&(!f||norm(pick(r,['FUNDO']))===norm(f))).map(r=>pick(r,['AREA','ÁREA']))),'Selecciona área');$('grupo').value='';$('labor').value=''}
-function mRows(){const f=$('fundo').value,a=$('area').value;return maestro.filter(r=>norm(mEstado(r))==='ACTIVO').filter(r=>!f||norm(mFundo(r))===norm(f)).filter(r=>!a||!mArea(r)||norm(mArea(r))===norm(a))}
-$('fundo').addEventListener('change',refreshA);$('area').addEventListener('change',()=>{$('grupo').value='';$('labor').value=''});
+    const keepQty=confirm(
+      '¿Quieres conservar las cantidades del CSV?\n\n' +
+      'Aceptar = conservar cantidades.\n' +
+      'Cancelar = cargar solo la estructura con cantidades en 0.\n\n' +
+      'La semana y las fechas serán las que tienes seleccionadas ahora.'
+    );
 
-makeSearchCombo('jefatura','jefaturaList',()=>uniq(responsables.map(r=>pick(r,['JEFATURA']))),refreshF);
-makeSearchCombo('grupo','grupoList',()=>uniq(mRows().map(mGrupo)),()=>{$('labor').value=''});
-makeSearchCombo('labor','laborList',()=>{const g=$('grupo').value.trim();return uniq(mRows().filter(r=>!g||norm(mGrupo(r))===norm(g)).map(mLabor))});
+    const sample=parsed[0];
+    const headers=Object.keys(sample);
+    const turnoIdx=headers.findIndex(h=>N(h)==='TURNO');
+    const totalIdx=headers.findIndex(h=>N(h)==='TOTAL');
+    let dayHeaders=[];
+    if(turnoIdx>=0 && totalIdx>turnoIdx){
+      dayHeaders=headers.slice(turnoIdx+1,totalIdx).slice(0,7);
+    }
+    if(dayHeaders.length<7){
+      // Fallback: use numeric/date-looking headers after TURNO, excluding TOTAL.
+      dayHeaders=headers.filter(h=>h!==headers[totalIdx] && (/\d{4}-\d{2}-\d{2}/.test(h)||/^\d{1,2}[\/-]\d{1,2}/.test(h))).slice(0,7);
+    }
 
-$('build').addEventListener('click',()=>{
- if(!$('jefatura').value.trim()||!$('fundo').value||!$('area').value||!$('labor').value.trim())return alert('Completa Jefatura, Fundo, Área y Labor.');
- $('entryHead').innerHTML=`<tr><th>Grupo</th><th>Labor</th><th>Turno</th>${weekDates.map(x=>`<th class="num">${x.getUTCDate()}<small style="display:block">${DAYS[x.getUTCDay()]}</small></th>`).join('')}<th class="num">Total</th></tr>`;
- $('entryBody').innerHTML=`<tr><td>${esc($('grupo').value)}</td><td>${esc($('labor').value)}</td><td>${esc($('turno').value)}</td>${weekDates.map((x,i)=>`<td class="num"><input class="qty" type="number" min="0" value="0" style="width:62px;text-align:center;margin:0;padding:7px"></td>`).join('')}<td id="rowTotal" class="num"><strong>0</strong></td></tr>`;
- $('entryEmpty').hidden=true;document.querySelectorAll('.qty').forEach(x=>x.addEventListener('input',totalQty));totalQty();
-});
-function totalQty(){const t=[...document.querySelectorAll('.qty')].reduce((s,x)=>s+(Number(x.value)||0),0);$('rowTotal').innerHTML='<strong>'+fmt(t)+'</strong>'}
+    const grouped=new Map();
+    let skipped=0;
+    parsed.forEach(r=>{
+      const j=csvVal(r,['JEFATURA']);
+      const f=csvVal(r,['FUNDO']);
+      const a=csvVal(r,['AREA','ÁREA']);
+      const g=csvVal(r,['GRUPO','GRUPO_LABOR','GRUPO LABOR']);
+      const l=csvVal(r,['LABOR']);
+      const t=csvVal(r,['TURNO'])||'DIA';
 
-$('save').addEventListener('click',async()=>{
- if(!document.querySelectorAll('.qty').length)return alert('Primero prepara la semana.');
- const mr=mRows().find(r=>(!$('grupo').value.trim()||norm(mGrupo(r))===norm($('grupo').value.trim()))&&norm(mLabor(r))===norm($('labor').value.trim()));if(!mr)return alert('No se encontró la labor ACTIVA en el maestro.');
- const q=[...document.querySelectorAll('.qty')].map(x=>Number(x.value)||0);
- const regs=weekDates.map((d,i)=>({SEMANA:+$('weekSelect').value,FECHA:String(d.getUTCDate()).padStart(2,'0')+'/'+String(d.getUTCMonth()+1).padStart(2,'0')+'/'+d.getUTCFullYear(),JEFATURA:$('jefatura').value.trim(),FUNDO:$('fundo').value,AREA:$('area').value,COD_GRUPO_LABOR:mCodGrupo(mr),GRUPO_LABOR:mGrupo(mr),COD_LABOR:mCodLabor(mr),LABOR:mLabor(mr),TURNO:$('turno').value,CANTIDAD:q[i]})).filter(r=>r.CANTIDAD>0);
- if(!regs.length)return alert('Ingresa al menos una cantidad.');
- $('saveStatus').textContent='Guardando…';
- try{await fetch(API,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({accion:'guardarProgramacion',registros:regs})});await new Promise(r=>setTimeout(r,1200));$('saveStatus').textContent=`✓ Enviados ${regs.length} registros.`;document.querySelectorAll('.qty').forEach(x=>x.value=0);totalQty()}catch(e){$('saveStatus').textContent='Error: '+e.message}
-});
+      if(!j||!f||!a||!l){ skipped++; return; }
+      if(!validResponsible(j,f,a)){ skipped++; return; }
+      if(!activeLaborExists(f,a,g,l)){ skipped++; return; }
 
-$('loadSummary').addEventListener('click',async()=>{try{$('sumStatus').textContent='Leyendo PROGRAMACION…';programacion=await get('programacion');renderSummary();$('sumStatus').textContent='Resumen actualizado.'}catch(e){$('sumStatus').textContent='Error: '+e.message}});
-function parseDate(v){if(!v)return null;let m=String(v).match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})$/);if(m)return new Date(Date.UTC(+m[3],+m[2]-1,+m[1]));return null}
-function renderSummary(){const ks=weekDates.map(iso);const valid=programacion.map(r=>{const d=parseDate(pick(r,['FECHA']));return {...r,__d:d,__q:Number(String(pick(r,['CANTIDAD'])).replace(',','.'))||0}}).filter(r=>r.__d&&ks.includes(iso(r.__d)));
- $('sLab').textContent=new Set(valid.map(r=>pick(r,['LABOR'])).filter(Boolean)).size;$('sPeople').textContent=fmt(valid.reduce((s,r)=>s+r.__q,0));$('sRows').textContent=valid.length;
- if(!valid.length){$('sumHead').innerHTML='';$('sumBody').innerHTML='';$('sumEmpty').hidden=false;return}$('sumEmpty').hidden=true;
- $('sumHead').innerHTML=`<tr><th>Fundo</th><th>Jefatura</th><th>Área</th>${weekDates.map(d=>`<th class="num">${d.getUTCDate()}<small style="display:block">${DAYS[d.getUTCDay()]}</small></th>`).join('')}<th class="num">Total</th></tr>`;
- const g=new Map();valid.forEach(r=>{const f=pick(r,['FUNDO']),j=pick(r,['JEFATURA']),a=pick(r,['AREA','ÁREA']),k=[f,j,a].join('|');if(!g.has(k))g.set(k,{f,j,a,by:new Map(),t:0});const x=g.get(k),dk=iso(r.__d);x.by.set(dk,(x.by.get(dk)||0)+r.__q);x.t+=r.__q});
- const rows=[...g.values()].sort((a,b)=>a.f.localeCompare(b.f,'es')||a.j.localeCompare(b.j,'es')),fg=new Map();rows.forEach(r=>{if(!fg.has(r.f))fg.set(r.f,[]);fg.get(r.f).push(r)});
- let out='',grand=new Map(ks.map(k=>[k,0])),gt=0;fg.forEach((rs,f)=>{const sub=new Map(ks.map(k=>[k,0]));let st=0;rs.forEach((r,i)=>{ks.forEach(k=>{const v=r.by.get(k)||0;sub.set(k,sub.get(k)+v);grand.set(k,grand.get(k)+v)});st+=r.t;gt+=r.t;out+=`<tr><td class="fundo">${i===0?esc(f):''}</td><td class="jefe">${esc(r.j)}</td><td>${esc(r.a)}</td>${ks.map(k=>`<td class="num">${fmt(r.by.get(k)||0)}</td>`).join('')}<td class="num"><strong>${fmt(r.t)}</strong></td></tr>`});out+=`<tr class="sub"><td colspan="3" class="right">Subtotal ${esc(f)}</td>${ks.map(k=>`<td class="num">${fmt(sub.get(k)||0)}</td>`).join('')}<td class="num">${fmt(st)}</td></tr>`});
- out+=`<tr class="total"><td colspan="3" class="right">TOTAL GENERAL</td>${ks.map(k=>`<td class="num">${fmt(grand.get(k)||0)}</td>`).join('')}<td class="num">${fmt(gt)}</td></tr>`;$('sumBody').innerHTML=out}
+      const key=[j,f,a].join('||');
+      if(!grouped.has(key)) grouped.set(key,{j,f,a,rows:[]});
+      const q=Array.from({length:7},(_,i)=>{
+        if(!keepQty)return 0;
+        const h=dayHeaders[i];
+        return h ? Math.max(0,Number(String(r[h]??0).replace(',','.'))||0) : 0;
+      });
+      grouped.get(key).rows.push({id:Date.now()+Math.random(),g,l,t:N(t)==='NOCHE'?'NOCHE':'DIA',q});
+    });
 
-async function init(){populateYears();try{[responsables,maestro]=await Promise.all([get('responsables'),get('maestro')]);$('conn').textContent=`Conectado · ${responsables.length} responsables · ${maestro.filter(r=>norm(mEstado(r))==='ACTIVO').length} labores activas`;$('conn').className='conn ok';fill($('fundo'),[],'Selecciona jefatura');fill($('area'),[],'Selecciona fundo')}catch(e){$('conn').textContent='Error de conexión: '+e.message;$('conn').className='conn bad'}}
-init();
-})();
-</script>
-</body></html>
+    const loaded=[...grouped.values()];
+    if(!loaded.length){
+      return alert('No se encontraron filas válidas. Revisa que Jefatura/Fundo/Área existan y que las labores sigan ACTIVAS.');
+    }
+
+    if(A.length && !confirm('Ya tienes programación en pantalla. ¿Deseas reemplazarla por el CSV cargado?')) return;
+
+    snap();
+    A=loaded.map((x,i)=>({id:Date.now()+i,j:x.j,f:x.f,a:x.a,r:x.rows}));
+    render();
+    $('status').textContent='✓ CSV cargado: '+A.reduce((s,x)=>s+x.r.length,0)+' líneas' +
+      (keepQty?' con cantidades.':' con cantidades en 0.') +
+      (skipped?(' · '+skipped+' fila(s) omitida(s).'):'');
+  }catch(err){
+    $('status').textContent='Error al cargar CSV: '+err.message;
+    alert('No pude cargar el CSV: '+err.message);
+  }
+};
+
+$('excel').onclick=()=>{let z=[['JEFATURA','FUNDO','AREA','GRUPO','LABOR','TURNO',...D.map(ISO),'TOTAL']];A.forEach(a=>a.r.forEach(r=>z.push([a.j,a.f,a.a,r.g,r.l,r.t,...r.q,r.q.reduce((s,x)=>s+x,0)])));let b=new Blob(['\ufeff'+z.map(r=>r.map(x=>'"'+String(x).replace(/"/g,'""')+'"').join(';')).join('\n')],{type:'text/csv'}),u=URL.createObjectURL(b),x=document.createElement('a');x.href=u;x.download='Programacion_S'+$('wk').value+'.csv';x.click();URL.revokeObjectURL(u)};
+$('save').onclick=async()=>{let z=[];A.forEach(a=>a.r.forEach(r=>{let m=rows(a.f,a.a).find(x=>N(mg(x))===N(r.g)&&N(ml(x))===N(r.l));r.q.forEach((q,i)=>{if(q>0)z.push({SEMANA:+$('wk').value,FECHA:String(D[i].getUTCDate()).padStart(2,'0')+'/'+String(D[i].getUTCMonth()+1).padStart(2,'0')+'/'+D[i].getUTCFullYear(),JEFATURA:a.j,FUNDO:a.f,AREA:a.a,COD_GRUPO_LABOR:m?mcg(m):'',GRUPO_LABOR:r.g,COD_LABOR:m?mcl(m):'',LABOR:r.l,TURNO:r.t,CANTIDAD:q})})}));if(!z.length)return alert('No hay cantidades para guardar.');$('status').textContent='Guardando…';await fetch(API,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify({accion:'guardarProgramacion',registros:z})});$('status').textContent='✓ '+z.length+' registros enviados.'};
+(async()=>{initWeek();try{[R,M]=await Promise.all([G('responsables'),G('maestro')]);$('conn').textContent='Conectado · '+R.length+' responsables · '+M.filter(r=>N(me(r))==='ACTIVO').length+' labores activas';$('conn').className='conn ok';fill($('fundo'),[],'Selecciona jefatura');fill($('area'),[],'Selecciona fundo');jc()}catch(e){$('conn').textContent='Error: '+e.message}})();
+</script></body></html>
