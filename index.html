@@ -47,9 +47,9 @@ function render(){
       let cls=st.missing?'errorrow':(st.zero?'warnrow':'');
       let msg=st.missing?'<div class="rowmsg errmsg">⚠ Falta Grupo o Labor</div>':(st.zero?'<div class="rowmsg warnmsg">⚠ Sin programación</div>':'');
       return '<tr class="'+cls+'>'+
-       '<td><input class="searchcell" list="'+gid+'" value="'+E(r.g)+'" placeholder="Buscar grupo..." onchange="sr('+a.id+','+r.id+',\\'g\\',this.value)"><datalist id="'+gid+'">'+gs.map(x=>'<option value="'+E(x)+'"></option>').join('')+'</datalist></td>'+
-       '<td><input class="searchcell searchlab" '+(isNew?'':'list="'+lid+'"')+' value="'+E(r.l)+'" placeholder="'+(isNew?'Escribe nueva labor...':'Buscar labor...')+'" onchange="sr('+a.id+','+r.id+',\\'l\\',this.value)">'+(isNew?'':'<datalist id="'+lid+'">'+ls.map(x=>'<option value="'+E(x)+'"></option>').join('')+'</datalist>')+msg+'</td>'+
-       '<td><select onchange="sr('+a.id+','+r.id+',\\'t\\',this.value)"><option '+(r.t==='DIA'?'selected':'')+'>DIA</option><option '+(r.t==='NOCHE'?'selected':'')+'>NOCHE</option></select></td>'+
+       '<td><input class="searchcell" list="'+gid+'" value="'+E(r.g)+'" placeholder="Buscar grupo..." onchange="sr('+a.id+','+r.id+',\'g\',this.value)"><datalist id="'+gid+'">'+gs.map(x=>'<option value="'+E(x)+'"></option>').join('')+'</datalist></td>'+
+       '<td><input class="searchcell searchlab" '+(isNew?'':'list="'+lid+'"')+' value="'+E(r.l)+'" placeholder="'+(isNew?'Escribe nueva labor...':'Buscar labor...')+'" onchange="sr('+a.id+','+r.id+',\'l\',this.value)">'+(isNew?'':'<datalist id="'+lid+'">'+ls.map(x=>'<option value="'+E(x)+'"></option>').join('')+'</datalist>')+msg+'</td>'+
+       '<td><select onchange="sr('+a.id+','+r.id+',\'t\',this.value)"><option '+(r.t==='DIA'?'selected':'')+'>DIA</option><option '+(r.t==='NOCHE'?'selected':'')+'>NOCHE</option></select></td>'+
        r.q.map((q,i)=>'<td class="num"><input class="qty" type="number" min="0" value="'+q+'" onchange="sq('+a.id+','+r.id+','+i+',this.value)"></td>').join('')+
        '<td class="num rt" data-a="'+a.id+'" data-r="'+r.id+'"></td>'+
        '<td class="rowact num"><button class="light" title="Copiar línea" onclick="cp('+a.id+','+r.id+')">📋</button><button class="red" title="Borrar línea" onclick="delR('+a.id+','+r.id+')">🗑</button></td></tr>'
