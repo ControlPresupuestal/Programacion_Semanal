@@ -25,9 +25,9 @@
 </style>
 <!--[if gte mso 9]><xml>
 <mso:CustomDocumentProperties>
-<mso:_dlc_DocId msdt:dt="string">UT5DNZMK4W5E-800651695-1162135</mso:_dlc_DocId>
-<mso:_dlc_DocIdItemGuid msdt:dt="string">c6c1a681-6550-4b67-acf9-3057a9e6abc9</mso:_dlc_DocIdItemGuid>
-<mso:_dlc_DocIdUrl msdt:dt="string">https://agsantaazulperu.sharepoint.com/sites/FS-ASA/_layouts/15/DocIdRedir.aspx?ID=UT5DNZMK4W5E-800651695-1162135, UT5DNZMK4W5E-800651695-1162135</mso:_dlc_DocIdUrl>
+<mso:_dlc_DocId msdt:dt="string">UT5DNZMK4W5E-800651695-1165071</mso:_dlc_DocId>
+<mso:_dlc_DocIdItemGuid msdt:dt="string">247edddc-a27e-4c3b-a5ab-13c6f5692ff7</mso:_dlc_DocIdItemGuid>
+<mso:_dlc_DocIdUrl msdt:dt="string">https://agsantaazulperu.sharepoint.com/sites/FS-ASA/_layouts/15/DocIdRedir.aspx?ID=UT5DNZMK4W5E-800651695-1165071, UT5DNZMK4W5E-800651695-1165071</mso:_dlc_DocIdUrl>
 </mso:CustomDocumentProperties>
 </xml><![endif]-->
 </head><body><div class="app">
@@ -59,7 +59,26 @@ const API='https://script.google.com/macros/s/AKfycbzho2PoUsUSvgxDGT8ZArzIl7gX6x
 let R=[],M=[],A=[],hist=[],fut=[],D=[],lastSavedSignature='',showZeroWarnings=false;const NEW_GROUP='OTROS / NUEVA LABOR';const $=x=>document.getElementById(x),N=s=>String(s??'').trim().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''),U=a=>[...new Set(a.map(x=>String(x??'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'es')),E=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function P(o,n){for(let z of n){let k=Object.keys(o||{}).find(x=>N(x)===N(z));if(k)return o[k]}return''}const mf=r=>P(r,['FUNDO']),ma=r=>P(r,['AREA','ÁREA']),mg=r=>P(r,['GRUPO LABOR','GRUPO_LABOR']),ml=r=>P(r,['LABOR']),mcg=r=>P(r,['COD G LABOR','COD_GRUPO_LABOR']),mcl=r=>P(r,['COD LABOR','COD_LABOR']),me=r=>P(r,['ESTADO']);
 async function G(a){let r=await fetch(API+'?accion='+a+'&_='+Date.now()),j=await r.json();if(!j.ok)throw Error(j.mensaje);return j.datos||[]}function IW(d){let x=new Date(d),q=x.getUTCDay()||7;x.setUTCDate(x.getUTCDate()+4-q);let y=new Date(Date.UTC(x.getUTCFullYear(),0,1));return Math.ceil((((x-y)/86400000)+1)/7)}function WIY(y){return IW(new Date(Date.UTC(y,11,28)))}function WD(y,w){let j=new Date(Date.UTC(y,0,4)),q=j.getUTCDay()||7,m=new Date(j);m.setUTCDate(j.getUTCDate()-q+1+(w-1)*7);return Array.from({length:7},(_,i)=>{let x=new Date(m);x.setUTCDate(m.getUTCDate()+i);return x})}const ISO=d=>d.toISOString().slice(0,10),SH=d=>new Intl.DateTimeFormat('es-PE',{day:'2-digit',month:'short'}).format(d).replace('.','');
-function weeks(s){let y=+$('yr').value;$('wk').innerHTML=Array.from({length:WIY(y)},(_,i)=>'<option>'+(i+1)+'</option>').join('');$('wk').value=Math.min(s,WIY(y));setWeek()}function setWeek(){D=WD(+$('yr').value,+$('wk').value);$('range').textContent=SH(D[0])+' – '+SH(D[6])+' '+D[6].getUTCFullYear();render()}function initWeek(){let n=new Date(),d=new Date(Date.UTC(n.getFullYear(),n.getMonth(),n.getDate())),x=new Date(d),q=x.getUTCDay()||7;x.setUTCDate(x.getUTCDate()+4-q);let y=x.getUTCFullYear();$('yr').innerHTML=[y-1,y,y+1].map(v=>'<option>'+v+'</option>').join('');$('yr').value=y;weeks(IW(d))}function shift(n){let y=+$('yr').value,w=+$('wk').value+n;if(w<1){y--;w=WIY(y)}if(w>WIY(y)){y++;w=1}if(![...$('yr').options].some(o=>+o.value===y))$('yr').add(new Option(y,y));$('yr').value=y;weeks(w)}
+function weeks(s){let y=+$('yr').value;$('wk').innerHTML=Array.from({length:WIY(y)},(_,i)=>'<option>'+(i+1)+'</option>').join('');$('wk').value=Math.min(s,WIY(y));setWeek()}function setWeek(){D=WD(+$('yr').value,+$('wk').value);$('range').textContent=SH(D[0])+' – '+SH(D[6])+' '+D[6].getUTCFullYear();render()}function initWeek(){
+  let n=new Date(),
+      d=new Date(Date.UTC(n.getFullYear(),n.getMonth(),n.getDate())),
+      currentWeek=IW(d),
+      x=new Date(d),
+      q=x.getUTCDay()||7;
+  x.setUTCDate(x.getUTCDate()+4-q);
+  let y=x.getUTCFullYear(),
+      nextWeek=currentWeek+1;
+
+  if(nextWeek>WIY(y)){
+    y++;
+    nextWeek=1;
+  }
+
+  $('yr').innerHTML=[y-1,y,y+1].map(v=>'<option>'+v+'</option>').join('');
+  $('yr').value=y;
+  weeks(nextWeek);
+}
+function shift(n){let y=+$('yr').value,w=+$('wk').value+n;if(w<1){y--;w=WIY(y)}if(w>WIY(y)){y++;w=1}if(![...$('yr').options].some(o=>+o.value===y))$('yr').add(new Option(y,y));$('yr').value=y;weeks(w)}
 $('yr').onchange=()=>weeks(1);$('wk').onchange=setWeek;$('prev').onclick=()=>shift(-1);$('next').onclick=()=>shift(1);
 function fill(e,v,p){e.innerHTML='<option value="">'+p+'</option>'+v.map(x=>'<option>'+E(x)+'</option>').join('')}function rf(){let j=$('jefe').value;fill($('area'),U(R.filter(r=>!j||N(P(r,['JEFATURA']))===N(j)).map(r=>P(r,['AREA','ÁREA']))),'Selecciona área');fill($('fundo'),[],'Selecciona área')}function ra(){let j=$('jefe').value,a=$('area').value;fill($('fundo'),U(R.filter(r=>(!j||N(P(r,['JEFATURA']))===N(j))&&(!a||N(P(r,['AREA','ÁREA']))===N(a))).map(r=>P(r,['FUNDO']))),'Selecciona fundo')}$('area').onchange=ra;
 function jc(){let i=$('jefe'),l=$('jl');function dr(all){let q=all?'':N(i.value),v=U(R.map(r=>P(r,['JEFATURA']))).filter(x=>!q||N(x).includes(q));l.innerHTML=v.map(x=>'<div class="item" data-v="'+E(x)+'">'+E(x)+'</div>').join('');l.classList.add('open');l.querySelectorAll('[data-v]').forEach(x=>x.onmousedown=e=>{e.preventDefault();i.value=x.dataset.v;l.classList.remove('open');rf()})}i.onfocus=()=>dr(true);i.oninput=()=>dr(false);document.addEventListener('click',e=>{if(!i.parentElement.contains(e.target))l.classList.remove('open')})}
