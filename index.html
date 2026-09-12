@@ -30,7 +30,7 @@
 .consulta{max-width:1320px;margin:18px auto;background:#fff;border-radius:16px;box-shadow:0 20px 60px #0004;overflow:hidden}
 .chead{padding:14px 16px;border-bottom:1px solid var(--ln);display:flex;align-items:center;justify-content:space-between;gap:10px}
 .chead h2{margin:0;color:var(--bd);font-size:19px}.cbody{padding:14px}
-.cfilters{display:grid;grid-template-columns:110px 110px minmax(180px,1.2fr) minmax(160px,1fr) minmax(160px,1fr) auto;gap:8px;align-items:end}
+.cfilters{display:grid;grid-template-columns:100px 100px minmax(170px,1.2fr) minmax(150px,1fr) minmax(150px,1fr) auto auto;gap:8px;align-items:end}
 .cfilters label{font-size:9px;font-weight:800;color:var(--mu);text-transform:uppercase}.cfilters select{width:100%;display:block;margin-top:4px}
 .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}.kpi{border:1px solid var(--ln);border-radius:11px;padding:10px 12px;background:#fbfdff}.kpi span{display:block;font-size:9px;color:var(--mu);font-weight:800;text-transform:uppercase}.kpi strong{display:block;margin-top:3px;font-size:20px;color:var(--bd)}
 .ctabs{display:flex;gap:6px;margin:8px 0}.ctab.active{background:var(--b);color:#fff}.ctab{background:#edf2f7;color:var(--tx)}
@@ -41,9 +41,9 @@ button:disabled{opacity:.55;cursor:not-allowed}
 </style>
 <!--[if gte mso 9]><xml>
 <mso:CustomDocumentProperties>
-<mso:_dlc_DocId msdt:dt="string">UT5DNZMK4W5E-800651695-1170206</mso:_dlc_DocId>
-<mso:_dlc_DocIdItemGuid msdt:dt="string">c1576993-24f8-442f-8a26-9b3abf80ef51</mso:_dlc_DocIdItemGuid>
-<mso:_dlc_DocIdUrl msdt:dt="string">https://agsantaazulperu.sharepoint.com/sites/FS-ASA/_layouts/15/DocIdRedir.aspx?ID=UT5DNZMK4W5E-800651695-1170206, UT5DNZMK4W5E-800651695-1170206</mso:_dlc_DocIdUrl>
+<mso:_dlc_DocId msdt:dt="string">UT5DNZMK4W5E-800651695-1170208</mso:_dlc_DocId>
+<mso:_dlc_DocIdItemGuid msdt:dt="string">ecc81b15-a339-4a03-9192-39c2e8910c46</mso:_dlc_DocIdItemGuid>
+<mso:_dlc_DocIdUrl msdt:dt="string">https://agsantaazulperu.sharepoint.com/sites/FS-ASA/_layouts/15/DocIdRedir.aspx?ID=UT5DNZMK4W5E-800651695-1170208, UT5DNZMK4W5E-800651695-1170208</mso:_dlc_DocIdUrl>
 </mso:CustomDocumentProperties>
 </xml><![endif]-->
 </head><body><div class="app">
@@ -82,12 +82,13 @@ button:disabled{opacity:.55;cursor:not-allowed}
     <label>Área<select id="carea"></select></label>
     <label>Fundo<select id="cfundo"></select></label>
     <button id="runConsulta" class="blue">🔎 Consultar</button>
+    <button id="clearConsulta" class="light" title="Limpiar todos los filtros">↻ Limpiar filtros</button>
    </div>
    <div class="cards"><div class="kpi"><span>Personas-día</span><strong id="kCant">—</strong></div><div class="kpi"><span>Labores</span><strong id="kLab">—</strong></div><div class="kpi"><span>Áreas</span><strong id="kArea">—</strong></div><div class="kpi"><span>Fundos</span><strong id="kFundo">—</strong></div></div>
-   <div class="ctabs"><button id="tabDetalle" class="ctab active">Detalle</button><button id="tabResumen" class="ctab">Resumen por labor</button></div>
+   <div class="ctabs"><button id="tabResumen" class="ctab active">Resumen por labor</button><button id="tabDetalle" class="ctab">Detalle</button></div>
    <div id="consultaStatus" style="font-size:11px;color:var(--mu);margin:5px 0"></div>
    <div id="consultaResult" class="ctablewrap"><div class="cempt">Selecciona los filtros y pulsa Consultar.</div></div>
-   <div class="cactions"><button id="csvConsulta" class="light">⬇ Descargar CSV</button><button id="printConsulta" class="light">🖨 Imprimir</button></div>
+   <div class="cactions"><button id="excelConsulta" class="green">📊 Exportar Excel</button><button id="csvConsulta" class="light">⬇ Descargar CSV</button><button id="printConsulta" class="light">🖨 Imprimir</button></div>
   </div>
  </div>
 </div>
@@ -280,7 +281,7 @@ $('csvLoad').onchange=async e=>{
 
 $('excel').onclick=()=>{let z=[['JEFATURA','FUNDO','AREA','GRUPO','LABOR','TIPO_LABOR','TURNO',...D.map(ISO),'TOTAL']];A.forEach(a=>a.r.forEach(r=>z.push([a.j,a.f,a.a,r.g,r.l,N(r.g)===N(NEW_GROUP)?'NUEVA':'MAESTRA',r.t,...r.q,r.q.reduce((s,x)=>s+x,0)])));let b=new Blob(['\ufeff'+z.map(r=>r.map(x=>'"'+String(x).replace(/"/g,'""')+'"').join(';')).join('\n')],{type:'text/csv'}),u=URL.createObjectURL(b),x=document.createElement('a');x.href=u;x.download='Programacion_S'+$('wk').value+'.csv';x.click();URL.revokeObjectURL(u)};
 // Consulta de programación guardada
-let PROG=[],CF=[],consultaVista='detalle',saving=false;
+let PROG=[],CF=[],consultaVista='resumen',saving=false;
 const pv=(o,n)=>P(o,n);
 const pFecha=r=>pv(r,['FECHA']);
 const pSemana=r=>pv(r,['SEMANA']);
@@ -290,30 +291,77 @@ const pArea=r=>pv(r,['AREA','ÁREA']);
 const pGrupo=r=>pv(r,['GRUPO_LABOR','GRUPO LABOR','GRUPO']);
 const pLabor=r=>pv(r,['LABOR']);
 const pTurno=r=>pv(r,['TURNO']);
+const pDGrupo=r=>pv(r,['D_GRUPO_LAB','COD_GRUPO_LABOR','COD G LABOR']);
+const pCodLabor=r=>pv(r,['COD_LABOR','COD LABOR']);
+const pTipoLabor=r=>pv(r,['TIPO_LABOR','TIPO LABOR']);
 const pCant=r=>Number(String(pv(r,['CANTIDAD'])).replace(',','.'))||0;
 function yearFromFecha(v){let m=String(v||'').match(/(\d{4})/);return m?+m[1]:0}
 function cfill(id,vals,ph){let e=$(id),cur=e.value;e.innerHTML='<option value="">'+ph+'</option>'+U(vals).map(x=>'<option>'+E(x)+'</option>').join('');if([...e.options].some(o=>o.value===cur))e.value=cur}
 function prepConsulta(){
  const y=+$('yr').value,w=+$('wk').value;
  const years=U(PROG.map(r=>String(yearFromFecha(pFecha(r))||'')).filter(Boolean));
- $('cyear').innerHTML=years.map(x=>'<option>'+x+'</option>').join(''); if(years.includes(String(y)))$('cyear').value=String(y);
+ $('cyear').innerHTML='<option value="">Todos</option>'+years.map(x=>'<option>'+x+'</option>').join(''); if(years.includes(String(y)))$('cyear').value=String(y);
  const weeks=U(PROG.filter(r=>!$('cyear').value||yearFromFecha(pFecha(r))===+$('cyear').value).map(r=>String(pSemana(r))).filter(Boolean));
  $('cweek').innerHTML='<option value="">Todas</option>'+weeks.map(x=>'<option>'+E(x)+'</option>').join(''); if(weeks.includes(String(w)))$('cweek').value=String(w);
  cCascade();
 }
 function baseCF(){return PROG.filter(r=>(!$('cyear').value||yearFromFecha(pFecha(r))===+$('cyear').value)&&(!$('cweek').value||String(pSemana(r))===String($('cweek').value)))}
 function cCascade(){let b=baseCF();cfill('cjefe',b.map(pJefe),'Todas');b=b.filter(r=>!$('cjefe').value||N(pJefe(r))===N($('cjefe').value));cfill('carea',b.map(pArea),'Todas');b=b.filter(r=>!$('carea').value||N(pArea(r))===N($('carea').value));cfill('cfundo',b.map(pFundo),'Todos')}
-$('cyear').onchange=()=>{const weeks=U(PROG.filter(r=>yearFromFecha(pFecha(r))===+$('cyear').value).map(r=>String(pSemana(r))).filter(Boolean));$('cweek').innerHTML='<option value="">Todas</option>'+weeks.map(x=>'<option>'+E(x)+'</option>').join('');cCascade()};
+$('cyear').onchange=()=>{const weeks=U(PROG.filter(r=>!$('cyear').value||yearFromFecha(pFecha(r))===+$('cyear').value).map(r=>String(pSemana(r))).filter(Boolean));$('cweek').innerHTML='<option value="">Todas</option>'+weeks.map(x=>'<option>'+E(x)+'</option>').join('');cCascade()};
 $('cweek').onchange=cCascade;$('cjefe').onchange=cCascade;$('carea').onchange=cCascade;
 $('openConsulta').onclick=async()=>{let m=$('consultaModal');m.classList.add('open');m.setAttribute('aria-hidden','false');$('consultaStatus').textContent='Cargando programación guardada…';try{PROG=await G('programacion');prepConsulta();$('consultaStatus').textContent='✓ '+PROG.length+' registros disponibles.';runConsulta()}catch(e){$('consultaStatus').textContent='Error al consultar: '+e.message}};
 $('closeConsulta').onclick=()=>{$('consultaModal').classList.remove('open');$('consultaModal').setAttribute('aria-hidden','true')};
 $('consultaModal').onclick=e=>{if(e.target===$('consultaModal'))$('closeConsulta').click()};
 $('runConsulta').onclick=runConsulta;
+$('clearConsulta').onclick=()=>{
+  $('cyear').value='';
+  const weeks=U(PROG.map(r=>String(pSemana(r))).filter(Boolean));
+  $('cweek').innerHTML='<option value="">Todas</option>'+weeks.map(x=>'<option>'+E(x)+'</option>').join('');
+  $('cweek').value='';
+  cfill('cjefe',PROG.map(pJefe),'Todas');
+  $('cjefe').value='';
+  cfill('carea',PROG.map(pArea),'Todas');
+  $('carea').value='';
+  cfill('cfundo',PROG.map(pFundo),'Todos');
+  $('cfundo').value='';
+  runConsulta();
+  $('consultaStatus').textContent='Filtros limpiados · '+CF.length+' registro(s) encontrados.';
+};
 $('tabDetalle').onclick=()=>{consultaVista='detalle';$('tabDetalle').classList.add('active');$('tabResumen').classList.remove('active');renderConsulta()};
 $('tabResumen').onclick=()=>{consultaVista='resumen';$('tabResumen').classList.add('active');$('tabDetalle').classList.remove('active');renderConsulta()};
 function runConsulta(){CF=baseCF().filter(r=>(!$('cjefe').value||N(pJefe(r))===N($('cjefe').value))&&(!$('carea').value||N(pArea(r))===N($('carea').value))&&(!$('cfundo').value||N(pFundo(r))===N($('cfundo').value)));$('kCant').textContent=CF.reduce((s,r)=>s+pCant(r),0).toLocaleString('es-PE');$('kLab').textContent=U(CF.map(pLabor)).length;$('kArea').textContent=U(CF.map(pArea)).length;$('kFundo').textContent=U(CF.map(pFundo)).length;$('consultaStatus').textContent=CF.length+' registro(s) encontrados.';renderConsulta()}
 function renderConsulta(){let out=$('consultaResult');if(!CF.length){out.innerHTML='<div class="cempt">No se encontraron registros con esos filtros.</div>';return}if(consultaVista==='detalle'){out.innerHTML='<table class="ctable"><thead><tr><th>Fecha</th><th>Jefatura</th><th>Fundo</th><th>Área</th><th>Grupo labor</th><th>Labor</th><th>Turno</th><th class="num">Cantidad</th></tr></thead><tbody>'+CF.slice().sort((a,b)=>String(pFecha(a)).localeCompare(String(pFecha(b)))).map(r=>'<tr><td>'+E(pFecha(r))+'</td><td>'+E(pJefe(r))+'</td><td>'+E(pFundo(r))+'</td><td>'+E(pArea(r))+'</td><td>'+E(pGrupo(r))+'</td><td>'+E(pLabor(r))+'</td><td>'+E(pTurno(r))+'</td><td class="num">'+pCant(r)+'</td></tr>').join('')+'</tbody></table>';return}
- const mp=new Map();CF.forEach(r=>{let k=[pJefe(r),pFundo(r),pArea(r),pGrupo(r),pLabor(r),pTurno(r)].join('||');if(!mp.has(k))mp.set(k,{j:pJefe(r),f:pFundo(r),a:pArea(r),g:pGrupo(r),l:pLabor(r),t:pTurno(r),q:[0,0,0,0,0,0,0]});let d=String(pFecha(r)).split('/');let dt=d.length===3?new Date(Date.UTC(+d[2],+d[1]-1,+d[0])):new Date(pFecha(r));let ix=(dt.getUTCDay()+6)%7;if(ix>=0&&ix<7)mp.get(k).q[ix]+=pCant(r)});let rows=[...mp.values()];out.innerHTML='<table class="ctable"><thead><tr><th>Jefatura</th><th>Fundo</th><th>Área</th><th>Labor</th><th>Turno</th>'+['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'].map(x=>'<th class="num">'+x+'</th>').join('')+'<th class="num">Total</th></tr></thead><tbody>'+rows.map(r=>'<tr><td>'+E(r.j)+'</td><td>'+E(r.f)+'</td><td>'+E(r.a)+'</td><td>'+E(r.l)+'</td><td>'+E(r.t)+'</td>'+r.q.map(x=>'<td class="num">'+x+'</td>').join('')+'<td class="num"><b>'+r.q.reduce((s,x)=>s+x,0)+'</b></td></tr>').join('')+'</tbody></table>'}
+ const mp=new Map();CF.forEach(r=>{let k=[pJefe(r),pFundo(r),pArea(r),pGrupo(r),pLabor(r),pTurno(r)].join('||');if(!mp.has(k))mp.set(k,{j:pJefe(r),f:pFundo(r),a:pArea(r),g:pGrupo(r),l:pLabor(r),t:pTurno(r),q:[0,0,0,0,0,0,0]});let d=String(pFecha(r)).split('/');let dt=d.length===3?new Date(Date.UTC(+d[2],+d[1]-1,+d[0])):new Date(pFecha(r));let ix=(dt.getUTCDay()+6)%7;if(ix>=0&&ix<7)mp.get(k).q[ix]+=pCant(r)});let rows=[...mp.values()];
+ const dayNames=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+ let dayDates=[];
+ if($('cyear').value && $('cweek').value){
+   dayDates=WD(+$('cyear').value,+$('cweek').value).map(d=>String(d.getUTCDate()).padStart(2,'0')+'/'+String(d.getUTCMonth()+1).padStart(2,'0'));
+ }else{
+   dayDates=dayNames.map((_,ix)=>{
+     const hit=CF.find(r=>{let d=String(pFecha(r)).split('/');let dt=d.length===3?new Date(Date.UTC(+d[2],+d[1]-1,+d[0])):new Date(pFecha(r));return ((dt.getUTCDay()+6)%7)===ix});
+     if(!hit)return '';
+     const d=String(pFecha(hit)).split('/');return d.length>=2?d[0].padStart(2,'0')+'/'+d[1].padStart(2,'0'):String(pFecha(hit));
+   });
+ }
+ out.innerHTML='<table class="ctable"><thead><tr><th>Jefatura</th><th>Fundo</th><th>Área</th><th>Labor</th><th>Turno</th>'+dayNames.map((x,i)=>'<th class="num">'+x+(dayDates[i]?'<small style="display:block;font-size:9px;margin-top:2px">'+dayDates[i]+'</small>':'')+'</th>').join('')+'<th class="num">Total</th></tr></thead><tbody>'+rows.map(r=>'<tr><td>'+E(r.j)+'</td><td>'+E(r.f)+'</td><td>'+E(r.a)+'</td><td>'+E(r.l)+'</td><td>'+E(r.t)+'</td>'+r.q.map(x=>'<td class="num">'+x+'</td>').join('')+'<td class="num"><b>'+r.q.reduce((s,x)=>s+x,0)+'</b></td></tr>').join('')+'</tbody></table>'}
+function xmlEsc(v){return String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+$('excelConsulta').onclick=()=>{
+  if(!CF.length)return alert('No hay resultados para exportar.');
+  const headers=['SEMANA','FECHA','JEFATURA','FUNDO','AREA','D_GRUPO_LAB','GRUPO_LABOR','COD_LABOR','LABOR','TIPO_LABOR','TURNO','CANTIDAD'];
+  const data=CF.slice().sort((a,b)=>String(pFecha(a)).localeCompare(String(pFecha(b)))).map(r=>[
+    pSemana(r),pFecha(r),pJefe(r),pFundo(r),pArea(r),pDGrupo(r),pGrupo(r),pCodLabor(r),pLabor(r),pTipoLabor(r),pTurno(r),pCant(r)
+  ]);
+  const rows=[headers,...data];
+  const xml='<?xml version="1.0"?><?mso-application progid="Excel.Sheet"?>'+
+  '<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">'+
+  '<Worksheet ss:Name="PROGRAMACION"><Table>'+rows.map((row,ri)=>'<Row>'+row.map((v,ci)=>{
+    const num=(ci===0||ci===11)&&ri>0&&!isNaN(Number(v));
+    return '<Cell><Data ss:Type="'+(num?'Number':'String')+'">'+xmlEsc(v)+'</Data></Cell>';
+  }).join('')+'</Row>').join('')+'</Table></Worksheet></Workbook>';
+  const b=new Blob(['\ufeff'+xml],{type:'application/vnd.ms-excel'}),u=URL.createObjectURL(b),a=document.createElement('a');
+  const y=$('cyear').value||'Todos',w=$('cweek').value||'Todas';
+  a.href=u;a.download='PROGRAMACION_'+y+'_S'+w+'.xls';a.click();URL.revokeObjectURL(u);
+};
 $('csvConsulta').onclick=()=>{if(!CF.length)return alert('No hay resultados para descargar.');let z=[['FECHA','SEMANA','JEFATURA','FUNDO','AREA','GRUPO_LABOR','LABOR','TURNO','CANTIDAD'],...CF.map(r=>[pFecha(r),pSemana(r),pJefe(r),pFundo(r),pArea(r),pGrupo(r),pLabor(r),pTurno(r),pCant(r)])];let b=new Blob(['\ufeff'+z.map(r=>r.map(x=>'"'+String(x).replace(/"/g,'""')+'"').join(';')).join('\n')],{type:'text/csv'}),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download='Consulta_Programacion_S'+($('cweek').value||'Todas')+'.csv';a.click();URL.revokeObjectURL(u)};
 $('printConsulta').onclick=()=>{if(!CF.length)return alert('No hay resultados para imprimir.');let w=window.open('','_blank');w.document.write('<html><head><title>Consulta programación</title><style>body{font-family:Arial;font-size:11px}table{border-collapse:collapse;width:100%}th,td{border:1px solid #ccc;padding:5px;text-align:left}th{background:#174a8b;color:white}</style></head><body><h2>ASA | IA - Consulta de programación</h2>'+document.getElementById('consultaResult').innerHTML+'</body></html>');w.document.close();w.print()};
 
@@ -371,7 +419,8 @@ $('save').onclick=async()=>{
 
   const signature=JSON.stringify({year:+$('yr').value,week:+$('wk').value,areas:A});
   if(typeof lastSavedSignature!=='undefined' && signature===lastSavedSignature){
-    if(!confirm('Esta programación ya fue guardada y no detecto cambios. ¿Deseas guardarla nuevamente?')) return;
+    alert('Esta programación ya fue guardada y no detecto cambios. No se volverá a guardar.');
+    return;
   }
 
   saving=true;
@@ -389,11 +438,18 @@ $('save').onclick=async()=>{
 
     if(typeof lastSavedSignature!=='undefined') lastSavedSignature=signature;
     const nuevas=z.filter(x=>x.TIPO_LABOR==='NUEVA').length;
-    $('status').textContent='✓ '+z.length+' registros enviados a PROGRAMACION.'+(nuevas?' · '+nuevas+' registro(s) de labor nueva enviado(s) a LABORES_PENDIENTES.':'');
+    $('status').textContent='✓ Programación guardada correctamente. El botón Guardar quedó bloqueado para evitar duplicados.'+(nuevas?' · '+nuevas+' registro(s) de labor nueva enviado(s) a LABORES_PENDIENTES.':'');
+    saveBtn.disabled=true;
+    saveBtn.textContent='✅';
+    saveBtn.title='Programación ya guardada';
+    alert('✅ Programación guardada correctamente.\n\nEl botón Guardar quedará bloqueado para evitar que se vuelva a registrar la misma programación.');
   }catch(e){
     $('status').textContent='Error: '+e.message;
+    saveBtn.disabled=false;
+    saveBtn.textContent=oldSaveText;
+    saveBtn.title='Guardar';
   }finally{
-    saving=false; saveBtn.disabled=false; saveBtn.textContent=oldSaveText; saveBtn.title='Guardar';
+    saving=false;
   }
 };
 (async()=>{initWeek();try{[R,M]=await Promise.all([G('responsables'),G('maestro')]);$('conn').textContent='Conectado · '+R.length+' responsables · '+M.filter(r=>N(me(r))==='ACTIVO').length+' labores activas';$('conn').className='conn ok';fill($('area'),[],'Selecciona jefatura');fill($('fundo'),[],'Selecciona área');jc()}catch(e){$('conn').textContent='Error: '+e.message}})();
