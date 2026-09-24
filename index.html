@@ -96,21 +96,32 @@ button:disabled{opacity:.55;cursor:not-allowed}
 const API='https://script.google.com/macros/s/AKfycbzho2PoUsUSvgxDGT8ZArzIl7gX6xXLFKBdqPwfL8snBXkLvygb2xlI-YsFOrdQ1SUP/exec';
 let R=[],M=[],A=[],hist=[],fut=[],D=[],lastSavedSignature='',showZeroWarnings=false;const NEW_GROUP='OTROS / NUEVA LABOR';const $=x=>document.getElementById(x),N=s=>String(s??'').trim().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''),U=a=>[...new Set(a.map(x=>String(x??'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'es')),E=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function P(o,n){for(let z of n){let k=Object.keys(o||{}).find(x=>N(x)===N(z));if(k)return o[k]}return''}const mf=r=>P(r,['FUNDO']),ma=r=>P(r,['AREA','ÁREA']),mg=r=>P(r,['GRUPO LABOR','GRUPO_LABOR']),ml=r=>P(r,['LABOR']),mcg=r=>P(r,['COD G LABOR','COD_GRUPO_LABOR']),mcl=r=>P(r,['COD LABOR','COD_LABOR']),me=r=>P(r,['ESTADO']);
-async function G(a){
-  const url=API+'?accion='+encodeURIComponent(a)+'&_='+Date.now();
-  const r=await fetch(url,{method:'GET',redirect:'follow',cache:'no-store'});
-  const text=await r.text();
-  if(!r.ok) throw Error('API HTTP '+r.status+'. Revisa el despliegue de Apps Script.');
-  let j;
-  try{j=JSON.parse(text)}
-  catch(e){
-    const html=/^\s*<!doctype|^\s*<html/i.test(text);
-    throw Error(html
-      ? 'La API de Google Apps Script devolvió HTML en lugar de JSON. Revisa que el Web App esté desplegado, con acceso permitido y que la URL /exec sea la vigente.'
-      : 'La API devolvió una respuesta no válida: '+text.slice(0,120));
+async function G(a,intentos=4){
+  let ultimo;
+  for(let i=1;i<=intentos;i++){
+    try{
+      const url=API+'?accion='+encodeURIComponent(a)+'&_='+Date.now();
+      const r=await fetch(url,{method:'GET',redirect:'follow',cache:'no-store'});
+      const text=await r.text();
+      if(!r.ok) throw Error('API HTTP '+r.status+'. Revisa el despliegue de Apps Script.');
+      let j;
+      try{j=JSON.parse(text)}
+      catch(e){
+        const html=/^\s*<!doctype|^\s*<html/i.test(text);
+        throw Error(html
+          ? 'La API de Google Apps Script devolvió HTML en lugar de JSON. Revisa que el Web App esté desplegado, con acceso permitido y que la URL /exec sea la vigente.'
+          : 'La API devolvió una respuesta no válida: '+text.slice(0,120));
+      }
+      if(!j.ok)throw Error(j.mensaje||'La API respondió con error.');
+      return j.datos||[];
+    }catch(e){
+      ultimo=e;
+      if(i===intentos) break;
+      const c=$('conn'); if(c && !/^Conectado/.test(c.textContent)) c.textContent='Reintentando conexión ('+(i+1)+'/'+intentos+')…';
+      await new Promise(r=>setTimeout(r,1500*i));
+    }
   }
-  if(!j.ok)throw Error(j.mensaje||'La API respondió con error.');
-  return j.datos||[];
+  throw ultimo;
 }function IW(d){let x=new Date(d),q=x.getUTCDay()||7;x.setUTCDate(x.getUTCDate()+4-q);let y=new Date(Date.UTC(x.getUTCFullYear(),0,1));return Math.ceil((((x-y)/86400000)+1)/7)}function WIY(y){return IW(new Date(Date.UTC(y,11,28)))}function WD(y,w){let j=new Date(Date.UTC(y,0,4)),q=j.getUTCDay()||7,m=new Date(j);m.setUTCDate(j.getUTCDate()-q+1+(w-1)*7);return Array.from({length:7},(_,i)=>{let x=new Date(m);x.setUTCDate(m.getUTCDate()+i);return x})}const ISO=d=>d.toISOString().slice(0,10),SH=d=>new Intl.DateTimeFormat('es-PE',{day:'2-digit',month:'short'}).format(d).replace('.','');
 function weeks(s){let y=+$('yr').value;$('wk').innerHTML=Array.from({length:WIY(y)},(_,i)=>'<option>'+(i+1)+'</option>').join('');$('wk').value=Math.min(s,WIY(y));setWeek()}function setWeek(){D=WD(+$('yr').value,+$('wk').value);$('range').textContent=SH(D[0])+' – '+SH(D[6])+' '+D[6].getUTCFullYear();render()}function initWeek(){
   let n=new Date(),
