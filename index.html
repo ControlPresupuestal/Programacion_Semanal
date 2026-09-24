@@ -100,7 +100,8 @@ async function G(a,intentos=4){
   let ultimo;
   for(let i=1;i<=intentos;i++){
     try{
-      const url=API+'?accion='+encodeURIComponent(a)+'&_='+Date.now();
+      const gzOk=typeof DecompressionStream!=='undefined';
+      const url=API+'?accion='+encodeURIComponent(a)+(gzOk?'&formato=gz':'')+'&_='+Date.now();
       const r=await fetch(url,{method:'GET',redirect:'follow',cache:'no-store'});
       const text=await r.text();
       if(!r.ok) throw Error('API HTTP '+r.status+'. Revisa el despliegue de Apps Script.');
@@ -113,6 +114,12 @@ async function G(a,intentos=4){
           : 'La API devolvió una respuesta no válida: '+text.slice(0,120));
       }
       if(!j.ok)throw Error(j.mensaje||'La API respondió con error.');
+      if(j.gz){
+        // Respuesta comprimida (gzip+base64): pesa ~10 veces menos
+        const bin=Uint8Array.from(atob(j.gz),c=>c.charCodeAt(0));
+        const txt=await new Response(new Blob([bin]).stream().pipeThrough(new DecompressionStream('gzip'))).text();
+        return JSON.parse(txt)||[];
+      }
       return j.datos||[];
     }catch(e){
       ultimo=e;
