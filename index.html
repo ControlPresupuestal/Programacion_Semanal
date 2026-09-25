@@ -35,6 +35,9 @@
 .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}.kpi{border:1px solid var(--ln);border-radius:11px;padding:10px 12px;background:#fbfdff}.kpi span{display:block;font-size:9px;color:var(--mu);font-weight:800;text-transform:uppercase}.kpi strong{display:block;margin-top:3px;font-size:20px;color:var(--bd)}
 .ctabs{display:flex;gap:6px;margin:8px 0}.ctab.active{background:var(--b);color:#fff}.ctab{background:#edf2f7;color:var(--tx)}
 .ctablewrap{overflow:auto;border:1px solid var(--ln);border-radius:11px;max-height:470px}.ctable{min-width:900px;font-size:11px;table-layout:auto}.ctable th{position:sticky;top:0;z-index:1;padding:8px 6px;font-size:10px}.ctable td{padding:7px 6px}
+.dupwarn{background:#fff4e0;border-bottom:1px solid #f0c27a;color:#8a4b00;padding:8px 10px;font-size:11px;font-weight:700}
+.ctable tr.csub td{font-weight:800}
+.ctable .regcell{white-space:nowrap;font-size:10px}
 .ctable tfoot td{position:sticky;bottom:0;z-index:1;background:#dfe9f6;color:var(--bd);font-weight:800;border-top:2px solid var(--b)}.cempt{padding:35px;text-align:center;color:var(--mu)}
 .cactions{display:flex;justify-content:flex-end;gap:6px;margin-top:10px}
 button:disabled{opacity:.55;cursor:not-allowed}
@@ -364,23 +367,43 @@ $('clearConsulta').onclick=()=>{
 $('tabDetalle').onclick=()=>{consultaVista='detalle';$('tabDetalle').classList.add('active');$('tabResumen').classList.remove('active');renderConsulta()};
 $('tabResumen').onclick=()=>{consultaVista='resumen';$('tabResumen').classList.add('active');$('tabDetalle').classList.remove('active');renderConsulta()};
 function runConsulta(){CF=baseCF().filter(r=>(!$('cjefe').value||N(pJefe(r))===N($('cjefe').value))&&(!$('carea').value||N(pArea(r))===N($('carea').value))&&(!$('cfundo').value||N(pFundo(r))===N($('cfundo').value)));$('kCant').textContent=CF.reduce((s,r)=>s+pCant(r),0).toLocaleString('es-PE');$('kLab').textContent=U(CF.map(pLabor)).length;$('kArea').textContent=U(CF.map(pArea)).length;$('kFundo').textContent=U(CF.map(pFundo)).length;$('consultaStatus').textContent=CF.length+' registro(s) encontrados.';renderConsulta()}
-function renderConsulta(){let out=$('consultaResult');if(!CF.length){out.innerHTML='<div class="cempt">No se encontraron registros con esos filtros.</div>';return}if(consultaVista==='detalle'){out.innerHTML='<table class="ctable"><thead><tr><th>Fecha</th><th>Jefatura</th><th>Fundo</th><th>Área</th><th>Grupo labor</th><th>Labor</th><th>Turno</th><th class="num">Cantidad</th></tr></thead><tbody>'+CF.slice().sort((a,b)=>String(pFecha(a)).localeCompare(String(pFecha(b)))).map(r=>'<tr><td>'+E(pFecha(r))+'</td><td>'+E(pJefe(r))+'</td><td>'+E(pFundo(r))+'</td><td>'+E(pArea(r))+'</td><td>'+E(pGrupo(r))+'</td><td>'+E(pLabor(r))+'</td><td>'+E(pTurno(r))+'</td><td class="num">'+pCant(r)+'</td></tr>').join('')+'</tbody><tfoot><tr class="ctotal"><td colspan="7">TOTAL</td><td class="num">'+CF.reduce((s,r)=>s+pCant(r),0).toLocaleString('es-PE')+'</td></tr></tfoot></table>';return}
- const mp=new Map();CF.forEach(r=>{let k=[pJefe(r),pFundo(r),pArea(r),pGrupo(r),pLabor(r),pTurno(r)].join('||');if(!mp.has(k))mp.set(k,{j:pJefe(r),f:pFundo(r),a:pArea(r),g:pGrupo(r),l:pLabor(r),t:pTurno(r),q:[0,0,0,0,0,0,0]});let d=String(pFecha(r)).split('/');let dt=d.length===3?new Date(Date.UTC(+d[2],+d[1]-1,+d[0])):new Date(pFecha(r));let ix=(dt.getUTCDay()+6)%7;if(ix>=0&&ix<7)mp.get(k).q[ix]+=pCant(r)});let rows=[...mp.values()];
+// ---- Registros dobles: cada guardado tiene FECHA_REGISTRO (fecha y hora) ----
+const pReg=r=>P(r,['FECHA_REGISTRO']);
+const REG_RX=/(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{2})(?::(\d{2}))?/;
+function regKey(v){const m=String(v||'').match(REG_RX);return m?m[3]+m[2].padStart(2,'0')+m[1].padStart(2,'0')+m[4].padStart(2,'0')+m[5]+(m[6]||'00'):String(v||'')}
+function regFmt(v){const m=String(v||'').match(REG_RX);return m?m[1].padStart(2,'0')+'/'+m[2].padStart(2,'0')+'/'+m[3]+' '+m[4].padStart(2,'0')+':'+m[5]+':'+(m[6]||'00'):(String(v||'').trim()||'—')}
+const ENV_BG=['#fff1dc','#efe4ff','#dcf4f1','#fde3e3'],ENV_BD=['#e08a00','#7b4dd6','#138a7b','#d23c3c'];
+const gKey=r=>[yearFromFecha(pFecha(r)),pSemana(r),pJefe(r),pFundo(r),pArea(r)].join('||');
+function enviosPorGrupo(list){const g=new Map();list.forEach(r=>{const k=gKey(r);if(!g.has(k))g.set(k,new Set());g.get(k).add(pReg(r))});const o=new Map();g.forEach((s,k)=>o.set(k,[...s].sort((x,y)=>regKey(x).localeCompare(regKey(y)))));return o}
+function diaIdx(r){let d=String(pFecha(r)).split('/');let dt=d.length===3?new Date(Date.UTC(+d[2],+d[1]-1,+d[0])):new Date(pFecha(r));return (dt.getUTCDay()+6)%7}
+function avisoDobles(n){return n?'<div class="dupwarn">⚠ '+n+' área(s) con registro doble en esta consulta. Se muestran separadas por envío (fecha y hora de guardado), cada una con su color y subtotal. El TOTAL suma todos los envíos.</div>':''}
+function renderConsulta(){let out=$('consultaResult');if(!CF.length){out.innerHTML='<div class="cempt">No se encontraron registros con esos filtros.</div>';return}
+ const EV=enviosPorGrupo(CF);const dupN=[...EV.values()].filter(x=>x.length>1).length;
+ if(consultaVista==='detalle'){
+  const rs=CF.slice().sort((x,y)=>String(pFecha(x)).localeCompare(String(pFecha(y)))||regKey(pReg(x)).localeCompare(regKey(pReg(y))));
+  out.innerHTML=avisoDobles(dupN)+'<table class="ctable"><thead><tr><th>Fecha</th><th>Jefatura</th><th>Fundo</th><th>Área</th><th>Registro (fecha y hora)</th><th>Grupo labor</th><th>Labor</th><th>Turno</th><th class="num">Cantidad</th></tr></thead><tbody>'+rs.map(r=>{const envs=EV.get(gKey(r));const n=envs.length>1?envs.indexOf(pReg(r))+1:0;const c=n?(n-1)%ENV_BG.length:0;const st=n?' style="background:'+ENV_BG[c]+'"':'';const bl=n?' style="border-left:4px solid '+ENV_BD[c]+'"':'';return '<tr'+st+'><td'+bl+'>'+E(pFecha(r))+'</td><td>'+E(pJefe(r))+'</td><td>'+E(pFundo(r))+'</td><td>'+E(pArea(r))+'</td><td class="regcell">'+E(regFmt(pReg(r)))+(n?' <b style="color:'+ENV_BD[c]+'">#'+n+'</b>':'')+'</td><td>'+E(pGrupo(r))+'</td><td>'+E(pLabor(r))+'</td><td>'+E(pTurno(r))+'</td><td class="num">'+pCant(r)+'</td></tr>'}).join('')+'</tbody><tfoot><tr class="ctotal"><td colspan="8">TOTAL</td><td class="num">'+CF.reduce((s,r)=>s+pCant(r),0).toLocaleString('es-PE')+'</td></tr></tfoot></table>';return}
+ // Resumen: agrupa por área-semana; si hay más de un envío, separa por envío
+ const groups=new Map();
+ CF.forEach(r=>{const k=gKey(r),envs=EV.get(k),dup=envs.length>1,reg=pReg(r);if(!groups.has(k))groups.set(k,{dup,envs,m:new Map()});const G=groups.get(k),ek=dup?reg:'*';if(!G.m.has(ek))G.m.set(ek,new Map());const lm=G.m.get(ek),lk=[pGrupo(r),pLabor(r),pTurno(r)].join('||');if(!lm.has(lk))lm.set(lk,{j:pJefe(r),f:pFundo(r),a:pArea(r),g:pGrupo(r),l:pLabor(r),t:pTurno(r),reg:dup?reg:envs.join(' / '),n:dup?envs.indexOf(reg)+1:0,q:[0,0,0,0,0,0,0]});const ix=diaIdx(r);if(ix>=0&&ix<7)lm.get(lk).q[ix]+=pCant(r)});
  const dayNames=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
  let dayDates=[];
  if($('cyear').value && $('cweek').value){
    dayDates=WD(+$('cyear').value,+$('cweek').value).map(d=>String(d.getUTCDate()).padStart(2,'0')+'/'+String(d.getUTCMonth()+1).padStart(2,'0'));
  }else{
    dayDates=dayNames.map((_,ix)=>{
-     const hit=CF.find(r=>{let d=String(pFecha(r)).split('/');let dt=d.length===3?new Date(Date.UTC(+d[2],+d[1]-1,+d[0])):new Date(pFecha(r));return ((dt.getUTCDay()+6)%7)===ix});
+     const hit=CF.find(r=>diaIdx(r)===ix);
      if(!hit)return '';
      const d=String(pFecha(hit)).split('/');return d.length>=2?d[0].padStart(2,'0')+'/'+d[1].padStart(2,'0'):String(pFecha(hit));
    });
  }
- out.innerHTML='<table class="ctable"><thead><tr><th>Jefatura</th><th>Fundo</th><th>Área</th><th>Labor</th><th>Turno</th>'+dayNames.map((x,i)=>'<th class="num">'+x+(dayDates[i]?'<small style="display:block;font-size:9px;margin-top:2px">'+dayDates[i]+'</small>':'')+'</th>').join('')+'<th class="num">Total</th></tr></thead><tbody>'+rows.map(r=>'<tr><td>'+E(r.j)+'</td><td>'+E(r.f)+'</td><td>'+E(r.a)+'</td><td>'+E(r.l)+'</td><td>'+E(r.t)+'</td>'+r.q.map(x=>'<td class="num">'+x+'</td>').join('')+'<td class="num"><b>'+r.q.reduce((s,x)=>s+x,0)+'</b></td></tr>').join('')+'</tbody>'+
- (()=>{const td=[0,1,2,3,4,5,6].map(i=>rows.reduce((s,r)=>s+(+r.q[i]||0),0));const tt=td.reduce((s,x)=>s+x,0);
-   return '<tfoot><tr class="ctotal"><td colspan="5">TOTAL DÍA</td>'+td.map(x=>'<td class="num">'+x.toLocaleString('es-PE')+'</td>').join('')+'<td class="num">'+tt.toLocaleString('es-PE')+'</td></tr></tfoot>'})()+
- '</table>'}
+ const all=[];let body='';
+ const fila=r=>{const c=r.n?(r.n-1)%ENV_BG.length:0;const st=r.n?' style="background:'+ENV_BG[c]+'"':'';const bl=r.n?' style="border-left:4px solid '+ENV_BD[c]+'"':'';return '<tr'+st+'><td'+bl+'>'+E(r.j)+'</td><td>'+E(r.f)+'</td><td>'+E(r.a)+'</td><td class="regcell">'+E(r.n?regFmt(r.reg):r.reg.split(' / ').map(regFmt).join(' / '))+(r.n?' <b style="color:'+ENV_BD[c]+'">#'+r.n+'</b>':'')+'</td><td>'+E(r.l)+'</td><td>'+E(r.t)+'</td>'+r.q.map(x=>'<td class="num">'+x+'</td>').join('')+'<td class="num"><b>'+r.q.reduce((s,x)=>s+x,0)+'</b></td></tr>'};
+ groups.forEach(G=>{(G.dup?G.envs:['*']).forEach((ek,ei)=>{const lm=G.m.get(ek);if(!lm)return;const rs=[...lm.values()];rs.forEach(r=>{all.push(r);body+=fila(r)});
+   if(G.dup){const c=ei%ENV_BG.length,sd=[0,1,2,3,4,5,6].map(i=>rs.reduce((s,r)=>s+(+r.q[i]||0),0)),stt=sd.reduce((s,x)=>s+x,0);
+     body+='<tr class="csub" style="background:'+ENV_BG[c]+'"><td colspan="6" style="border-left:4px solid '+ENV_BD[c]+'">Subtotal envío #'+(ei+1)+' · '+E(regFmt(ek))+' · '+E(rs[0].a)+' ('+E(rs[0].f)+')</td>'+sd.map(x=>'<td class="num">'+x+'</td>').join('')+'<td class="num">'+stt+'</td></tr>'}})});
+ const td=[0,1,2,3,4,5,6].map(i=>all.reduce((s,r)=>s+(+r.q[i]||0),0)),tt=td.reduce((s,x)=>s+x,0);
+ out.innerHTML=avisoDobles(dupN)+'<table class="ctable"><thead><tr><th>Jefatura</th><th>Fundo</th><th>Área</th><th>Registro (fecha y hora)</th><th>Labor</th><th>Turno</th>'+dayNames.map((x,i)=>'<th class="num">'+x+(dayDates[i]?'<small style="display:block;font-size:9px;margin-top:2px">'+dayDates[i]+'</small>':'')+'</th>').join('')+'<th class="num">Total</th></tr></thead><tbody>'+body+'</tbody>'+
+ '<tfoot><tr class="ctotal"><td colspan="6">TOTAL DÍA</td>'+td.map(x=>'<td class="num">'+x.toLocaleString('es-PE')+'</td>').join('')+'<td class="num">'+tt.toLocaleString('es-PE')+'</td></tr></tfoot></table>'}
 function xmlEsc(v){return String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
 $('excelConsulta').onclick=()=>{
   if(!CF.length)return alert('No hay resultados para exportar.');
