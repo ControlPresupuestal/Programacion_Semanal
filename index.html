@@ -33,7 +33,17 @@
 .cfilters{display:grid;grid-template-columns:100px 100px minmax(170px,1.2fr) minmax(150px,1fr) minmax(150px,1fr) 130px auto auto;gap:8px;align-items:end}
 .cfilters label{font-size:9px;font-weight:800;color:var(--mu);text-transform:uppercase}.cfilters select{width:100%;display:block;margin-top:4px}
 .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}.kpi{border:1px solid var(--ln);border-radius:11px;padding:10px 12px;background:#fbfdff}.kpi span{display:block;font-size:9px;color:var(--mu);font-weight:800;text-transform:uppercase}.kpi strong{display:block;margin-top:3px;font-size:20px;color:var(--bd)}
-.ctabs{display:flex;gap:6px;margin:8px 0}.ctab.active{background:var(--b);color:#fff}.ctab{background:#edf2f7;color:var(--tx)}
+.ctabs{display:flex;gap:6px;margin:8px 0;flex-wrap:wrap}
+.cfilters .cfl{font-size:9px;font-weight:800;color:var(--mu);text-transform:uppercase}
+.msel{position:relative;margin-top:4px}
+.mselbtn{width:100%;text-align:left;background:#fff;color:var(--tx);border:1px solid var(--ln);font-weight:600;font-size:12px;text-transform:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:22px}
+.mselbtn:after{content:'▾';position:absolute;right:9px;top:50%;transform:translateY(-50%);color:var(--mu)}
+.msellist{display:none;position:absolute;z-index:30;left:0;right:0;min-width:200px;max-height:260px;overflow:auto;background:#fff;border:1px solid var(--ln);border-radius:9px;box-shadow:0 8px 24px rgba(15,55,109,.18);padding:4px}
+.msel.open .msellist{display:block}
+.msellist label{display:flex;align-items:center;gap:7px;padding:6px 8px;border-radius:6px;font-size:12px;font-weight:600;color:var(--tx);text-transform:none;cursor:pointer}
+.msellist label:hover{background:var(--sf)}
+.msellist .mall{border-bottom:1px solid var(--ln);margin-bottom:3px;padding-bottom:7px}
+.ctable tr.csubarea td{background:#eef3fa}.ctab.active{background:var(--b);color:#fff}.ctab{background:#edf2f7;color:var(--tx)}
 .ctablewrap{overflow:auto;border:1px solid var(--ln);border-radius:11px;max-height:470px}.ctable{min-width:900px;font-size:11px;table-layout:auto}.ctable th{position:sticky;top:0;z-index:1;padding:8px 6px;font-size:10px}.ctable td{padding:7px 6px}
 .dupwarn{background:#fff4e0;border-bottom:1px solid #f0c27a;color:#8a4b00;padding:8px 10px;font-size:11px;font-weight:700}
 .ctable tr.csub td{font-weight:800}
@@ -84,13 +94,13 @@ button:disabled{opacity:.55;cursor:not-allowed}
     <label>Semana<select id="cweek"></select></label>
     <label>Jefatura<select id="cjefe"></select></label>
     <label>Área<select id="carea"></select></label>
-    <label>Fundo<select id="cfundo"></select></label>
+    <div class="cfl">Fundo<div class="msel" id="cfundoBox"><button type="button" id="cfundoBtn" class="mselbtn" title="Puedes marcar varios fundos">Todos</button><div id="cfundoList" class="msellist"></div></div></div>
     <label>Envío<select id="cenvio" title="Filtrar por número de registro (#1 = primer guardado)"><option value="">Todos</option></select></label>
     <button id="runConsulta" class="blue">🔎 Consultar</button>
     <button id="clearConsulta" class="light" title="Limpiar todos los filtros">↻ Limpiar filtros</button>
    </div>
    <div class="cards"><div class="kpi"><span>Personas-día</span><strong id="kCant">—</strong></div><div class="kpi"><span>Labores</span><strong id="kLab">—</strong></div><div class="kpi"><span>Áreas</span><strong id="kArea">—</strong></div><div class="kpi"><span>Fundos</span><strong id="kFundo">—</strong></div></div>
-   <div class="ctabs"><button id="tabResumen" class="ctab active">Resumen por labor</button><button id="tabDetalle" class="ctab">Detalle</button></div>
+   <div class="ctabs"><button id="tabResumen" class="ctab active">Resumen por labor</button><button id="tabArea" class="ctab">Resumen por área</button><button id="tabDetalle" class="ctab">Detalle</button></div>
    <div id="consultaStatus" style="font-size:11px;color:var(--mu);margin:5px 0"></div>
    <div id="consultaResult" class="ctablewrap"><div class="cempt">Selecciona los filtros y pulsa Consultar.</div></div>
    <div class="cactions"><button id="excelConsulta" class="green">📊 Exportar Excel</button><button id="csvConsulta" class="light">⬇ Descargar CSV</button><button id="printConsulta" class="light">🖨 Imprimir</button></div>
@@ -344,7 +354,7 @@ function prepConsulta(){
  cCascade();
 }
 function baseCF(){return PROG.filter(r=>(!$('cyear').value||yearFromFecha(pFecha(r))===+$('cyear').value)&&(!$('cweek').value||String(pSemana(r))===String($('cweek').value)))}
-function cCascade(){let b=baseCF();cfill('cjefe',b.map(pJefe),'Todas');b=b.filter(r=>!$('cjefe').value||N(pJefe(r))===N($('cjefe').value));cfill('carea',b.map(pArea),'Todas');b=b.filter(r=>!$('carea').value||N(pArea(r))===N($('carea').value));cfill('cfundo',b.map(pFundo),'Todos')}
+function cCascade(){let b=baseCF();cfill('cjefe',b.map(pJefe),'Todas');b=b.filter(r=>!$('cjefe').value||N(pJefe(r))===N($('cjefe').value));cfill('carea',b.map(pArea),'Todas');b=b.filter(r=>!$('carea').value||N(pArea(r))===N($('carea').value));fillFundos(b.map(pFundo))}
 $('cyear').onchange=()=>{const weeks=U(PROG.filter(r=>!$('cyear').value||yearFromFecha(pFecha(r))===+$('cyear').value).map(r=>String(pSemana(r))).filter(Boolean));$('cweek').innerHTML='<option value="">Todas</option>'+weeks.map(x=>'<option>'+E(x)+'</option>').join('');cCascade()};
 $('cweek').onchange=cCascade;$('cenvio').onchange=runConsulta;$('cjefe').onchange=cCascade;$('carea').onchange=cCascade;
 $('openConsulta').onclick=async()=>{let m=$('consultaModal');m.classList.add('open');m.setAttribute('aria-hidden','false');$('consultaStatus').textContent='Cargando programación guardada…';try{PROG=await G('programacion');prepConsulta();$('consultaStatus').textContent='✓ '+PROG.length+' registros disponibles.';runConsulta()}catch(e){$('consultaStatus').textContent='Error al consultar: '+e.message}};
@@ -360,15 +370,24 @@ $('clearConsulta').onclick=()=>{
   $('cjefe').value='';
   cfill('carea',PROG.map(pArea),'Todas');
   $('carea').value='';
-  cfill('cfundo',PROG.map(pFundo),'Todos');
-  $('cfundo').value='';
+  FSEL.clear();fillFundos(PROG.map(pFundo));
   $('cenvio').value='';
   runConsulta();
   $('consultaStatus').textContent='Filtros limpiados · '+CF.length+' registro(s) encontrados.';
 };
-$('tabDetalle').onclick=()=>{consultaVista='detalle';$('tabDetalle').classList.add('active');$('tabResumen').classList.remove('active');renderConsulta()};
-$('tabResumen').onclick=()=>{consultaVista='resumen';$('tabResumen').classList.add('active');$('tabDetalle').classList.remove('active');renderConsulta()};
-function runConsulta(){window.EVALL=enviosPorGrupo(PROG);let base=baseCF().filter(r=>(!$('cjefe').value||N(pJefe(r))===N($('cjefe').value))&&(!$('carea').value||N(pArea(r))===N($('carea').value))&&(!$('cfundo').value||N(pFundo(r))===N($('cfundo').value)));
+function setVista(vv){consultaVista=vv;[['tabResumen','resumen'],['tabArea','area'],['tabDetalle','detalle']].forEach(([id,k])=>$(id).classList.toggle('active',k===vv));renderConsulta()}
+$('tabResumen').onclick=()=>setVista('resumen');$('tabArea').onclick=()=>setVista('area');$('tabDetalle').onclick=()=>setVista('detalle');
+// ---- Filtro de Fundo con selección múltiple ----
+const FSEL=new Set();
+function fundoLabel(){const b=$('cfundoBtn');if(!b)return;const sel=[...$('cfundoList').querySelectorAll('input[data-f]:checked')].map(x=>x.dataset.f);b.textContent=!sel.length?'Todos':sel.length===1?sel[0]:sel.length+' fundos';b.title=sel.length?sel.join(', '):'Todos los fundos'}
+function fillFundos(vals){const list=U(vals);[...FSEL].forEach(k=>{if(!list.some(x=>N(x)===k))FSEL.delete(k)});
+ $('cfundoList').innerHTML='<label class="mall"><input type="checkbox" id="cfundoAll"'+(FSEL.size?'':' checked')+'> Todos</label>'+list.map(x=>'<label><input type="checkbox" data-f="'+E(x)+'"'+(FSEL.has(N(x))?' checked':'')+'> '+E(x)+'</label>').join('');
+ $('cfundoAll').onchange=e=>{FSEL.clear();$('cfundoList').querySelectorAll('input[data-f]').forEach(x=>x.checked=false);e.target.checked=true;fundoLabel();runConsulta()};
+ $('cfundoList').querySelectorAll('input[data-f]').forEach(x=>x.onchange=()=>{const k=N(x.dataset.f);if(x.checked)FSEL.add(k);else FSEL.delete(k);$('cfundoAll').checked=!FSEL.size;fundoLabel();runConsulta()});
+ fundoLabel()}
+$('cfundoBtn').onclick=e=>{e.stopPropagation();$('cfundoBox').classList.toggle('open')};
+document.addEventListener('click',e=>{const bx=$('cfundoBox');if(bx&&!bx.contains(e.target))bx.classList.remove('open')});
+function runConsulta(){window.EVALL=enviosPorGrupo(PROG);let base=baseCF().filter(r=>(!$('cjefe').value||N(pJefe(r))===N($('cjefe').value))&&(!$('carea').value||N(pArea(r))===N($('carea').value))&&(!FSEL.size||FSEL.has(N(pFundo(r)))));
  // Filtro por envío: numeración según fecha y hora de guardado de cada área-semana
  const cur=$('cenvio').value,maxN=base.reduce((m,r)=>Math.max(m,(EVALL.get(gKey(r))||[]).length),1);
  $('cenvio').innerHTML='<option value="">Todos</option><option value="u">Solo el último</option>'+Array.from({length:maxN},(_,i)=>'<option value="'+(i+1)+'">Registro #'+(i+1)+'</option>').join('');
@@ -393,7 +412,7 @@ function renderConsulta(){let out=$('consultaResult');if(!CF.length){out.innerHT
   out.innerHTML=avisoDobles(dupN)+'<table class="ctable"><thead><tr><th>Fecha</th><th>Jefatura</th><th>Fundo</th><th>Área</th><th>Registro (fecha y hora)</th><th>Grupo labor</th><th>Labor</th><th>Turno</th><th class="num">Cantidad</th></tr></thead><tbody>'+rs.map(r=>{const envs=EV.get(gKey(r));const n=envs.length>1?envs.indexOf(pReg(r))+1:0;const c=n?(n-1)%ENV_BG.length:0;const st=n?' style="background:'+ENV_BG[c]+'"':'';const bl=n?' style="border-left:4px solid '+ENV_BD[c]+'"':'';return '<tr'+st+'><td'+bl+'>'+E(pFecha(r))+'</td><td>'+E(pJefe(r))+'</td><td>'+E(pFundo(r))+'</td><td>'+E(pArea(r))+'</td><td class="regcell">'+E(regFmt(pReg(r)))+(n?' <b style="color:'+ENV_BD[c]+'">#'+n+'</b>':'')+'</td><td>'+E(pGrupo(r))+'</td><td>'+E(pLabor(r))+'</td><td>'+E(pTurno(r))+'</td><td class="num">'+pCant(r)+'</td></tr>'}).join('')+'</tbody><tfoot><tr class="ctotal"><td colspan="8">TOTAL</td><td class="num">'+CF.reduce((s,r)=>s+pCant(r),0).toLocaleString('es-PE')+'</td></tr></tfoot></table>';return}
  // Resumen: agrupa por área-semana; si hay más de un envío, separa por envío
  const groups=new Map();
- CF.forEach(r=>{const k=gKey(r),envs=EV.get(k),dup=envs.length>1,reg=pReg(r);if(!groups.has(k))groups.set(k,{dup,envs,m:new Map()});const G=groups.get(k),ek=dup?reg:'*';if(!G.m.has(ek))G.m.set(ek,new Map());const lm=G.m.get(ek),lk=[pGrupo(r),pLabor(r),pTurno(r)].join('||');if(!lm.has(lk))lm.set(lk,{j:pJefe(r),f:pFundo(r),a:pArea(r),g:pGrupo(r),l:pLabor(r),t:pTurno(r),reg:dup?reg:envs.join(' / '),n:dup?envs.indexOf(reg)+1:0,q:[0,0,0,0,0,0,0]});const ix=diaIdx(r);if(ix>=0&&ix<7)lm.get(lk).q[ix]+=pCant(r)});
+ CF.forEach(r=>{const k=gKey(r),envs=EV.get(k),dup=envs.length>1,reg=pReg(r);if(!groups.has(k))groups.set(k,{dup,envs,m:new Map(),sem:pSemana(r)});const G=groups.get(k),ek=dup?reg:'*';if(!G.m.has(ek))G.m.set(ek,new Map());const lm=G.m.get(ek),lk=[pGrupo(r),pLabor(r),pTurno(r)].join('||');if(!lm.has(lk))lm.set(lk,{j:pJefe(r),f:pFundo(r),a:pArea(r),g:pGrupo(r),l:pLabor(r),t:pTurno(r),reg:dup?reg:envs.join(' / '),n:dup?envs.indexOf(reg)+1:0,q:[0,0,0,0,0,0,0]});const ix=diaIdx(r);if(ix>=0&&ix<7)lm.get(lk).q[ix]+=pCant(r)});
  const dayNames=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
  let dayDates=[];
  if($('cyear').value && $('cweek').value){
@@ -405,6 +424,20 @@ function renderConsulta(){let out=$('consultaResult');if(!CF.length){out.innerHT
      const d=String(pFecha(hit)).split('/');return d.length>=2?d[0].padStart(2,'0')+'/'+d[1].padStart(2,'0'):String(pFecha(hit));
    });
  }
+ if(consultaVista==='area'){
+  // Resumen por área: una fila por área-fundo-semana (separada por envío si hay dobles)
+  const ar=[];
+  groups.forEach(G=>{(G.dup?G.envs:['*']).forEach(ek=>{const lm=G.m.get(ek);if(!lm)return;const rs=[...lm.values()],r0=rs[0];ar.push({a:r0.a,f:r0.f,j:r0.j,sem:G.sem,reg:r0.reg,n:r0.n,lab:rs.length,q:[0,1,2,3,4,5,6].map(i=>rs.reduce((s,r)=>s+(+r.q[i]||0),0))})})});
+  ar.sort((x,y)=>String(x.a).localeCompare(String(y.a),'es')||String(x.f).localeCompare(String(y.f),'es')||((+x.sem||0)-(+y.sem||0))||(x.n-y.n));
+  const byA=new Map();ar.forEach(r=>{const k=N(r.a);if(!byA.has(k))byA.set(k,[]);byA.get(k).push(r)});
+  const sum=rs=>[0,1,2,3,4,5,6].map(i=>rs.reduce((s,r)=>s+(+r.q[i]||0),0));
+  let bodyA='';
+  byA.forEach(rs=>{rs.forEach(r=>{const c=r.n?(r.n-1)%ENV_BG.length:0;const st=r.n?' style="background:'+ENV_BG[c]+'"':'';const bl=r.n?' style="border-left:4px solid '+ENV_BD[c]+'"':'';
+     bodyA+='<tr'+st+'><td'+bl+'><b>'+E(r.a)+'</b></td><td>'+E(r.f)+'</td><td>'+E(r.j)+'</td><td class="num">'+E(r.sem)+'</td><td class="regcell">'+E(r.n?regFmt(r.reg):r.reg.split(' / ').map(regFmt).join(' / '))+(r.n?' <b style="color:'+ENV_BD[c]+'">#'+r.n+'</b>':'')+'</td><td class="num">'+r.lab+'</td>'+r.q.map(x=>'<td class="num">'+x+'</td>').join('')+'<td class="num"><b>'+r.q.reduce((s,x)=>s+x,0)+'</b></td></tr>'});
+   if(rs.length>1){const sd=sum(rs);bodyA+='<tr class="csub csubarea"><td colspan="6">Subtotal '+E(rs[0].a)+' · '+rs.length+' registros</td>'+sd.map(x=>'<td class="num">'+x+'</td>').join('')+'<td class="num">'+sd.reduce((s,x)=>s+x,0)+'</td></tr>'}});
+  const tdA=sum(ar),ttA=tdA.reduce((s,x)=>s+x,0);
+  out.innerHTML=avisoDobles(dupN)+'<table class="ctable"><thead><tr><th>Área</th><th>Fundo</th><th>Jefatura</th><th class="num">Sem.</th><th>Registro (fecha y hora)</th><th class="num">Labores</th>'+dayNames.map((x,i)=>'<th class="num">'+x+(dayDates[i]?'<small style="display:block;font-size:9px;margin-top:2px">'+dayDates[i]+'</small>':'')+'</th>').join('')+'<th class="num">Total</th></tr></thead><tbody>'+bodyA+'</tbody>'+
+  '<tfoot><tr class="ctotal"><td colspan="6">TOTAL DÍA</td>'+tdA.map(x=>'<td class="num">'+x.toLocaleString('es-PE')+'</td>').join('')+'<td class="num">'+ttA.toLocaleString('es-PE')+'</td></tr></tfoot></table>';return}
  const all=[];let body='';
  const fila=r=>{const c=r.n?(r.n-1)%ENV_BG.length:0;const st=r.n?' style="background:'+ENV_BG[c]+'"':'';const bl=r.n?' style="border-left:4px solid '+ENV_BD[c]+'"':'';return '<tr'+st+'><td'+bl+'>'+E(r.j)+'</td><td>'+E(r.f)+'</td><td>'+E(r.a)+'</td><td class="regcell">'+E(r.n?regFmt(r.reg):r.reg.split(' / ').map(regFmt).join(' / '))+(r.n?' <b style="color:'+ENV_BD[c]+'">#'+r.n+'</b>':'')+'</td><td>'+E(r.l)+'</td><td>'+E(r.t)+'</td>'+r.q.map(x=>'<td class="num">'+x+'</td>').join('')+'<td class="num"><b>'+r.q.reduce((s,x)=>s+x,0)+'</b></td></tr>'};
  groups.forEach(G=>{(G.dup?G.envs:['*']).forEach((ek,ei)=>{const lm=G.m.get(ek);if(!lm)return;const rs=[...lm.values()];rs.forEach(r=>{all.push(r);body+=fila(r)});
